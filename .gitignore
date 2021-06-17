@@ -1,0 +1,6 @@
+*.lst
+*.hex
+*.sim
+*.autosave
+*.o
+_build
