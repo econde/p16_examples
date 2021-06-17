@@ -43,34 +43,34 @@ const uint8_t bin7seg[] =
 
 void main() {
 	uint16_t counter;
-   	uint8_t direction_state = 0;
-   	uint8_t port_prev = ~port_input();
+	uint8_t direction_state = 0;
+	uint8_t port_prev = ~port_input();
 
-   	port_write(direction_state ? LED_MASK : 0, LED_MASK);
-   	port_write(tab7seg[counter], 7SEG_MASK);
+	port_write(direction_state ? LED_MASK : 0, LED_MASK);
+	port_write(tab7seg[counter], 7SEG_MASK);
 
-   	while (1) {
-   		uint8_t port_actual = ~port_input();
-   		if ((port_prev & BUTTON_UPDOWN_MASK) == 0 && (port_actual & BUTTON_UPDOWN_MASK) != 0) {
-   			direction_state = ~direction_state;
-   			port_write(direction_state ? LED_MASK : 0, LED_MASK);
-   		}
-   		if ((port_prev & BUTTON_CLOCK_MASK) == 0 && (port_actual & BUTTON_CLOCK_MASK) != 0) {
-   			if (direction_state)
-   				if (counter == 9)
-   					counter = 0;
-   				else
-   					counter += 1;
-   			else
-   				if (counter == 0)
-   					counter = 9;
-   				else
-   					counter -= 1;
-   			port_write(tab7seg[counter], 7SEG_MASK);
-   		}
-   		port_prev = port_actual;
-   	}
-   }
+	while (1) {
+		uint8_t port_actual = ~port_input();
+		if ((port_prev & BUTTON_UPDOWN_MASK) == 0 && (port_actual & BUTTON_UPDOWN_MASK) != 0) {
+			direction_state = ~direction_state;
+			port_write(direction_state ? LED_MASK : 0, LED_MASK);
+		}
+		if ((port_prev & BUTTON_CLOCK_MASK) == 0 && (port_actual & BUTTON_CLOCK_MASK) != 0) {
+			if (direction_state)
+				if (counter == 9)
+					counter = 0;
+				else
+					counter += 1;
+			else
+				if (counter == 0)
+					counter = 9;
+				else
+					counter -= 1;
+			port_write(tab7seg[counter], 7SEG_MASK);
+		}
+		port_prev = port_actual;
+	}
+}
 /*------------------------------------------------------------------------------
 */
 	.equ	LED_MASK,		(1 << 7)
@@ -171,35 +171,36 @@ addressof_bin7seg:
 	.word	bin7seg
 
 /*------------------------------------------------------------------------------
-	void port_write(uint8_t value, uint8_t mask) {
-		static uint8_t port_image;
-		port_image &= ~mask;
-		port_image |= value & mask;
-		port_output(port_image);
-	}
+void port_write(uint8_t value, uint8_t mask) {
+	static uint8_t port_image;
+	port_image &= ~mask;
+	port_image |= value & mask;
+	port_output(port_image);
+}
 */
-  	.data
-   image:
-   	.byte	0
+	.data
+image:
+	.byte	0
 
-   	.text
-   port_write:
-   	push	lr
-   	ldr	r2, addressof_image
-   	ldrb	r3, [r2]
-   	mvn	r1, r1
-   	and	r3, r3, r1
+	.text
+port_write:
+	push	lr
+	ldr	r2, addressof_image
+	ldrb	r3, [r2]
 	mvn	r1, r1
-   	and	r0, r0, r1
-   	orr	r0, r3, r0
-   	strb	r0, [r2]
-   	bl	port_output
-   	pop	pc
+	and	r3, r3, r1
+	mvn	r1, r1
+	and	r0, r0, r1
+	orr	r0, r3, r0
+	strb	r0, [r2]
+	bl	port_output
+	pop	pc
 
-   addressof_image:
+addressof_image:
 	.word	image
 
 /*------------------------------------------------------------------------------
+	;uint8_t port_input();
 */
 	.equ	PORT_ADDRESS, 0xcc00
 
@@ -208,6 +209,10 @@ port_input:
 	movt	r0, PORT_ADDRESS >> 8
 	ldrb	r0,[r0, 0]
 	mov	pc, lr
+
+/*------------------------------------------------------------------------------
+	;void port_output(uint8_t);
+*/
 
 port_output:
 	mov	r1, PORT_ADDRESS & 0xff

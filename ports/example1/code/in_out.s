@@ -33,8 +33,6 @@ main:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 while:
-	ldrb	r0,[r1]		; uint8_t a = port_input();
-
-	strb	r0,[r1]		; port_output(a);
-
+	ldrb	r0,[r1]
+	strb	r0,[r1]
 	b	while

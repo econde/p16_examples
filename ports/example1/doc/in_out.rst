@@ -21,21 +21,12 @@ O programa principal (:numref:`in_out`) recolhe os dados presentes no porto de e
 Esta sequência é executada continuamente, criando a aparência
 de que o porto de saída está ligado diretamente ao porto de entrada.
 
-.. code-block:: asm
+.. literalinclude:: ../code/in_out.s
+   :language: asm
    :linenos:
    :caption: Programa principal
    :name: in_out
-
-   	.equ	PORT_ADDRESS, 0xcc00
-
-   	.text
-   main:
-   	mov	r1, PORT_ADDRESS & 0xff
-   	movt	r1, PORT_ADDRESS >> 8
-   while:
-   	ldrb	r0,[r1]
-   	strb	r0,[r1]
-	b	while
+   :lines: 29-38
 
 A instrução ``ldrb r0,[r1]`` recolhe os dados presentes no porto de entrada
 para a parte baixa do registo R0.

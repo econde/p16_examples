@@ -9,33 +9,23 @@ O valor do parâmetro ``time`` é sucessivamente decrementado até chegar a zero
 A duração da temporização depende do valor deste parâmetro
 e do tempo de processamento das instruções executadas no ciclo.
 
-.. code-block:: c
+.. literalinclude:: ../code/blink1.s
+   :language: c
    :linenos:
    :caption: Função ``delay`` baseada em tempo de processamento
    :name: delay_soft
-
-   void delay(uint16_t time) {
-   	while (time-- > 0)
-   		;
-   }
+   :lines: 61-64
 
 A duração da temporização pode ser determinada pela análise
 do código máquina resultante da tradução da função ``delay`` (:numref:`delay_soft_asm`),
 conhecendo o tempo que cada instrução demora a executar.
 
-.. code-block:: asm
+.. literalinclude:: ../code/blink1.s
+   :language: asm
    :linenos:
    :caption: Função ``delay`` baseada em tempo de processamento, em linguagem *assembly*
    :name: delay_soft_asm
-
-   delay:
-   	sub	r0, r0, 0
-   	beq	delay_exit
-   delay_while:
-   	sub	r0, r0, 1
-   	bzc	delay_while
-   delay_exit:
-   	mov	pc, lr
+   :lines: 67-74
 
 O tempo que cada instrução demora a executar depende da frequência do relógio
 principal do processador e da micro-arquitetura, isto é, da implementação *hardware*.

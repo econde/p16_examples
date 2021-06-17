@@ -41,43 +41,24 @@ e retorna o tempo que passou desde esse momento até agora.
 Esse tempo é comparado com LED_TIME que representa
 o tempo máximo que o LED deve ficar aceso.
 
-.. code-block:: c
+.. literalinclude:: ../code/led_temp.s
+   :language: c
    :linenos:
    :caption: Programa de controlo do LED
    :name: lamp_delay
+   :lines: 27-44
 
-   int main() {
-   	while (1) {
-   		port_output(0)		/* apagar o LED */
-   		while ((port_input() & BUTTON_MASK) == 0)
-   			;
-   		while ((port_input() & BUTTON_MASK) != 0)
-   			;
-
-   		port_output(LAMP_MASK);		/* acender o LED */
-   		uint16_t time_initial = timer_read();
-
-   		while ((port_input() & BUTTON_MASK) == 0
-   			&& timer_elapsed(timer_initial) < LED_TIME)
-   			;
-   		while ((port_input() & BUTTON_MASK) != 0
-   			&& timer_elapsed(timer_initial) < LED_TIME)
-   	}
-   }
 
 A função ``timer_elapsed`` (:numref:`timer_elapsed`) retorna
 a diferença entre o valor atual do contador do temporizador e o valor inicial.
 Este valor representa o tempo que passou desde o momento inicial até agora.
 
-.. code-block:: c
+.. literalinclude:: ../code/led_temp.s
+   :language: c
    :linenos:
    :caption: Função ``timer_elapsed``
    :name: timer_elapsed
-
-   uint16_t timer_elapsed(uint16_t initial) {
-   	return timer_read() - initial;
-   }
-
+   :lines: 99-101
 
 **Código completo:** :download:`led_temp.s<../code/led_temp.s>`
 

@@ -37,49 +37,12 @@ o valor retornado por `port_input` é imediatamente invertido
 para que o código se escreva em lógica positiva, a assim facilitar a compreenção
 (linhas 12 e 18).
 
-.. code-block:: c
+.. literalinclude:: ../code/7segment.s
+   :language: c
    :linenos:
    :caption: Programa de controlo do contador
    :name: counter_7segment
-
-   #define	LED_MASK		(1 << 7)
-   #define	DISPLAY_MASK		0x7f
-   #define	BUTTON_UPDOWN_MASK	(1 << 1)
-   #define	BUTTON_CLOCK_MASK	(1 << 6)
-
-   const uint8_t bin7seg[] =
-   	{0x3f, 0x06, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x07, 0x7f, 0x6f};
-
-   void main() {
-   	uint16_t counter;
-   	uint8_t direction_state = 0;
-   	uint8_t port_prev = ~port_input();
-
-   	port_write(direction_state ? LED_MASK : 0, LED_MASK);
-   	port_write(tab7seg[counter], 7SEG_MASK);
-
-   	while (1) {
-   		uint8_t port_actual = ~port_input();
-   		if ((port_prev & BUTTON_UPDOWN_MASK) == 0 && (port_actual & BUTTON_UPDOWN_MASK) != 0) {
-   			direction_state = ~direction_state;
-   			port_write(direction_state ? LED_MASK : 0, LED_MASK);
-   		}
-   		if ((port_prev & BUTTON_CLOCK_MASK) == 0 && (port_actual & BUTTON_CLOCK_MASK) != 0) {
-   			if (direction_state)
-   				if (counter == 9)
-   					counter = 0;
-   				else
-   					counter += 1;
-   			else
-   				if (counter == 0)
-   					counter = 9;
-   				else
-   					counter -= 1;
-   			port_write(tab7seg[counter], 7SEG_MASK);
-   		}
-   		port_prev = port_actual;
-   	}
-   }
+   :lines: 21-25, 41-73
 
 Depois da inicialização (linhas 10 a 17) o programa entra num ciclo infinito
 cuja atividade é dividida em duas partes:
@@ -119,64 +82,31 @@ para especificar as posições afetas ao *display* a máscara é 0111 1111.
 A manutenção dos restantes *bits* é baseada na memorização do valor anteriormente
 escrito no porto, mantido na variável local ``image`` (linha 2) da :numref:`port_write`.
 
-.. code-block:: c
+.. literalinclude:: ../code/7segment.s
+   :language: c
    :linenos:
    :caption: Função ``port_write``
    :name: port_write
-
-   void port_write(uint8_t value, uint8_t mask) {
-   	static uint8_t port_image;
-   	port_image &= ~mask;
-   	port_image |= value & mask;
-   	port_output(port_image);
-   }
+   :lines: 174-179
 
 Em linguagem C o atributo ``static`` na definição de uma variável local significa
 que essa variável deve ser implementada sempre no mesmo local da memória de dados.
 Não pode ser implementada em registo ou em *stack*. Assim em todas as execuções
 a função irá encontrar nessa variável o valor lá deixado na execução anterior.
 
-.. code-block:: asm
+.. literalinclude:: ../code/7segment.s
+   :language: asm
    :linenos:
    :caption: Função ``port_write`` em *assembly*
    :name: port_write_asm
+   :lines: 181-200
 
-   	.data
-   image:
-   	.byte	0
-
-   	.text
-   port_write:
-   	push	lr
-   	ldr	r2, addressof_image
-   	ldrb	r3, [r2]
-   	mvn	r1, r1
-   	and	r3, r3, r1
-	mvn	r1, r1
-   	and	r0, r0, r1
-   	orr	r0, r3, r0
-   	strb	r0, [r2]
-   	bl	port_output
-   	pop	pc
-
-   addressof_image:
-	.word	image
-
-.. code-block:: asm
+.. literalinclude:: ../code/7segment.s
+   :language: asm
    :linenos:
    :caption: Função ``port_output``
    :name: port_output_func_par
-
-   ; void port_output(uint8_t);
-
-	.equ	PORT_ADDRESS, 0xcc00
-
-   port_output:
-   	mov	r1, PORT_ADDRESS & 0xff
-   	movt	r1, PORT_ADDRESS >> 8
-   	strb	r0, [r1]
-   	mov	pc, lr
-
+   :lines: 214, 216, 205-206, 217-221
 
 **Código fonte:** :download:`7segment.s<../code/7segment.s>`
 

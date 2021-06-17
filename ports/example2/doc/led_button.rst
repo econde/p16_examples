@@ -25,22 +25,12 @@ para acender o LED -- ``port_output(LED_MASK)``.
 Se o valor lógico do *bit* do botão for **um**, significa que o botão está solto,
 então escreve o valor zero, para apagar o LED -- ``port_output(0)``.
 
- .. code-block:: c
+.. literalinclude:: ../code/led_button.s
+   :language: c
    :linenos:
    :caption: Programa principal em linguagem C
    :name: led_button
-
-   #define	BUTTON_MASK	(1 << 2)
-   #define	LED_MASK	(1 << 4)
-
-   int main() {
-   	while (true) {
-   		if ((port_input() & BUTTON_MASK) == 0)
-   			port_output(LED_MASK);
-   		else
-   			port_output(0);
-   	}
-   }
+   :lines: 22-32
 
 Na tradução do programa para linguagem *assembly* (:numref:`led_button_asm`),
 as funções ``port_input`` e ``port_output`` são traduzidas pelas sequências de instruções ::
@@ -61,35 +51,12 @@ usa endereçamento relativo ao PC. A posição de memória ``addressof_port`` co
 e está posicionada num endereço superior ao da instrução ``ldr``
 e a uma distância inferior a 128 *bytes* (linhas 23 e 24).
 
- .. code-block:: asm
+.. literalinclude:: ../code/led_button.s
+   :language: asm
    :linenos:
    :caption: Programa principal em linguagem *assembly*
    :name: led_button_asm
-
-   	.equ	BUTTON_MASK, (1 << 2)
-   	.equ	LED_MASK, (1 << 4)
-
-   	.equ	PORT_ADDRESS, 0xcc00
-
-   	.text
-   main:
-   while:
-   	ldr	r1, addressof_port
-   	ldrb	r0, [r1, 1]
-   	mov	r2, BUTTON_MASK
-   	and	r0, r0, r2
-   	bzc	if_else
-   	mov	r0, LED_MASK
-   	b	if_end
-   if_else:
-   	mov	r0, 0
-   if_end:
-   	ldr	r1, addr_port
-   	strb	r0, [r1, 1]
-  	b	while
-
-   addressof_port:
-   	.word	PORT_ADDRESS
+   :lines: 34-57
 
 O acesso aos portos de 8 *bits* na parte alta do barramento de dados (D8 a D15)
 deve utilizar endereços ímpares.

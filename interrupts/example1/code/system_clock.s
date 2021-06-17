@@ -81,7 +81,6 @@ while1:              			; while (
 	movt	r2, HALF_PERIOD >> 8
 	cmp	r0, r2			;	< HALF_PERIOD)
 	blo	while1
-
 	mvn	r4, r4			; led_state = ~led_state;
 	b	while
 

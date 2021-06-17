@@ -32,43 +32,18 @@ O estado do programa é baseado em duas variáveis:
 -- intermitência activa ou intermitência inactiva
 -- e ``led_state``, que representa o estado instantâneo do LED
 -- apagado ou aceso.
-O programa principal, entre as linhas 11 e 14,
+O programa principal, entre as linhas 11 e 17,
 monitoriza a pressão do botão e age sobre a variável `blink_state`.
 A ISR, em função da variável de estado blink_state,
 inverte o estado do LED e actualiza a sua visualização no porto de saída.
 A função auxiliar ``irequest_clear`` elimina o pedido de interrupção no *flip-flop*.
 
-.. code-block:: c
+.. literalinclude:: ../code/blink_intr.s
+   :language: c
    :linenos:
    :caption: Controlo de intermitência de um LED
    :name: blink_intr
-
-   #define	LED_MASK	(1 << 0)
-   #define	BUTTON_MASK	(1 << 3)
-
-   int blink_state;
-   int led_state;
-
-   void main() {
-   	interrupt_enable():
-   	port_output(led_state | LED_MASK);
-   	while (1) {
-   		while ((port_input() & BUTTON_MASK) == 0)
-   			;
-   		blink_state = !blink_state;
-   		while ((port_input() & BUTTON_MASK) != 0)
-   			;
-   	}
-   }
-
-   void isr() {
-   	if (blink_state)
-   		led_state = ~led_state;
-   	else
-   		led_state = 0;
-   	port_output(led_state  & LED_MASK);
-   	irequest_clear();
-   }
+   :lines: 30-48, 101, 91-98
 
 Programação em Assembly
 #######################
@@ -97,48 +72,15 @@ O registo LR tem que ser preservado porque a utilização da instrução BL alte
 seu conteúdo. À entrada da ISR ele contém o endereço de retorno para o programa
 interrompido.
 
-.. code-block:: asm
+.. literalinclude:: ../code/blink_intr.s
+   :language: asm
    :linenos:
    :caption: *Interrupt Service Rotine*
    :name: isr
-
-   	.equ IREQUEST_CLEAR_ADDRESS, 0xff40
-   isr:
-   	push	r0
-   	push	r1
-   	push	r2
-   	push	r3
-   	push	lr
-
-   	ldr	r1, addressof_blink_state	; if (blink_state)
-   	ldrb	r0, [r1]
-   	ldr	r1, addressof_led_state
-   	add	r0, r0, 0
-   	beq	isr_if_else
-   	ldrb	r0, [r1]			; led_state = !led_state;
-   	mvn	r0, r0
-   	b	isr_if_end
-   isr_if_else:
-   	mov	r0, 0				; led_state = 0;
-   isr_if_end:
-   	strb	r0, [r1]
-   	mov	r1, LED_MASK			; port_output(led_state  & LED_MASK);
-   	and	r0, r0, r1
-   	bl	port_output
-
-   	mov	r0, IREQUEST_CLEAR_ADDRESS & 0xff	; ativação da entrada CLR do flip-flop
-   	movt	r0, IREQUEST_CLEAR_ADDRESS >> 8
-   	ldr	r0, [r0]
-
-   	pop	lr
-   	pop	r3
-   	pop	r2
-   	pop	r1
-   	pop	r0
-   	movs	pc, lr
+   :lines: 100-134
 
 A operação de eliminação do pedido de interrupção, representada pela função ``irequest_clear``,
-é realizada nas linhas 25 a 27. Começa-se por carregar em R0 o endereço 0xFF40
+é realizada nas linhas 26 a 28. Começa-se por carregar em R0 o endereço 0xFF40
 e em seguida a execução da instrução ``ldr r0, [r0]``
 provoca a ativação simultânea dos sinais nCS_EX0 e nRD.
 O local no código da ISR onde esta operação é realizada é indiferente,

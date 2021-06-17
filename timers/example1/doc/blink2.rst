@@ -61,32 +61,22 @@ Como a operação de subtração é realizada com o mesmo número de *bits* do c
 gera empréstimo (*borrow*) e o resultado é o número de unidades que separa as duas parcelas,
 ou seja, é o número de ciclos de relógio que ocorreram entre os dois momentos.
 
-.. code-block:: c
+.. literalinclude:: ../code/blink2.s
+   :language: c
    :linenos:
    :caption: Função ``delay`` baseada no *timer* da :numref:`sdp16_timer_74590`
    :name: delay
-
-   void delay(uint16_t time) {
-   	uint16_t initial = timer_read();
-   	while (timer_read() - initial < time)
-   		;
-   }
+   :lines: 59-63
 
 Ler o valor do contador do temporizador é como ler de um porto de entrada.
 A função ``timer_read`` é implementada em *assembly* pelo código da :numref:`timer_read`.
 
-.. code-block:: asm
+.. literalinclude:: ../code/blink2.s
+   :language: asm
    :linenos:
    :caption: Função ``timer_read``
    :name: timer_read
-
-   	.equ	TIMER_ADDRESS, 0xff80
-
-   timer_read:
-   	mov	r1, TIMER_ADDRESS & 0xff
-   	movt	r1, TIMER_ADDRESS >> 8
-   	ldr	r0, [r0]
-   	mov	pc, lr
+   :lines: 95-101
 
 **Código completo:** :download:`blink2.s<../code/blink2.s>`
 

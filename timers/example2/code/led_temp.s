@@ -26,13 +26,13 @@ stack_end:
 
 int main() {
 	while (1) {
-		port_output(0)			apagar o LED
+		port_output(0)
 		while ((port_input() & BUTTON_MASK) == 0)
 			;
 		while ((port_input() & BUTTON_MASK) != 0)
 			;
 
-		port_output(LED_MASK)		acender o LED
+		port_output(LED_MASK)
 		uint16_t time_initial = timer_read();
 
 		while ((port_input() & BUTTON_MASK) == 0
@@ -96,9 +96,9 @@ while4_end:
 	b	while
 
 /*------------------------------------------------------------------------------
-	uint16_t timer_elapsed(uint16_t initial) {
-		return timer_read() - initial;
-	}
+uint16_t timer_elapsed(uint16_t initial) {
+	return timer_read() - initial;
+}
 */
 
 timer_elapsed:

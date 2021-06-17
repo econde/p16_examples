@@ -28,11 +28,13 @@ void main() {
 	uint8_t led_state = 0;
 	port_output(led_state);
 	while (1) {
-		while ((port_input() & BUTTON_MASK) == 0)
+		while ((port_input() & BUTTON_MASK) != 0)
 			;
+
 		led_state = ~led_state;
 		port_output(led_state & LED_MASK);
-		while ((port_input() & BUTTON_MASK) != 0)
+
+		while ((port_input() & BUTTON_MASK) == 0)
 			;
 	}
 }
@@ -59,10 +61,10 @@ while2:
 	mov	r1, BUTTON_MASK		;
 	and	r0, r0, r1
 	bzs	while2
-
 	b	while
 
 /*------------------------------------------------------------------------------
+	;uint8_t port_input();
 */
 	.equ	PORT_ADDRESS, 0xcc00
 
@@ -72,9 +74,12 @@ port_input:
 	ldrb	r0, [r0, 1]
 	mov	pc, lr
 
+/*------------------------------------------------------------------------------
+	;void port_output(uint8_t);
+*/
+
 port_output:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0, [r1, 1]
 	mov	pc, lr
-

@@ -21,25 +21,12 @@ Nessa altura inverte-se a representação de estado do LED,
 na variável ``led_state`` (linha 8),
 e em seguida atualiza-se o porto de saída (linha 9).
 
- .. code-block:: c
+.. literalinclude:: ../code/led_click.s
+   :language: c
    :linenos:
    :caption: Programa principal
    :name: led_click
-
-   void main() {
-   	uint8_t led_state = 0;
-   	port_output(led_state);
-   	while (1) {
-   		while ((port_input() & BUTTON_MASK) != 0)
-   			;
-
-   		led_state = ~led_state;
-   		port_output(led_state & LAMP_MASK);
-
-   		while ((port_input() & BUTTON_MASK) == 0)
-   			;
-   	}
-   }
+   :lines: 27-40
 
 Na tradução do programa para linguagem *assembly* (:numref:`led_click_asm`),
 as funções ``port_input`` e ``port_output`` são implementadas como rotinas.
@@ -49,33 +36,12 @@ Ao nível do programa principal, o acesso aos portos é realizado por invocaçã
 destas rotinas (linhas 5, 8, 16 e 18)
 e cumprindo o protocolo convencionado de passagem de argumentos e retorno de valores.
 
-.. code-block:: asm
+.. literalinclude:: ../code/led_click.s
+   :language: asm
    :linenos:
    :caption: Programa principal em linguagem *assembly*
    :name: led_click_asm
-
-   	.text
-   main:
-   	mov	r4, 0		; uint8_t led_state = 0;
-   	mov	r0, r4		; port_output(led_state);
-   	bl	port_output
-   while:
-   while1:
-   	bl	port_input	; while ((port_input() & BUTTON_MASK) == 0)
-   	mov	r1, BUTTON_MASK		;
-   	and	r0, r0, r1
-   	bzc	while1
-
-   	not	r4, r4		; led_state = ~led_state;
-   	mov	r0, LED_MASK
-   	and	r0, r0, r4
-   	bl	port_output	; port_output(led_state & LED_MASK);
-   while2:
-   	bl	port_input	; while ((port_input() & BUTTON_MASK) != 0)
-   	mov	r1, BUTTON_MASK		;
-   	and	r0, r0, r1
-   	bzs	while2
-   	b	while
+   :lines: 43-64
 
 A função ``port_input`` devolve os dados que se apresentam à entrada do porto.
 O endereço do porto, representado pelo símbolo ``PORT_ADDRESS``,
@@ -83,36 +49,24 @@ O endereço do porto, representado pelo símbolo ``PORT_ADDRESS``,
 transfere o valor presente nesse momento à entrada do porto para R0,
 por ser o registo convencionado para o retorno de valores de funções.
 
-.. code-block:: asm
+.. literalinclude:: ../code/led_click.s
+   :language: asm
    :linenos:
    :caption: Função ``port_input``
    :name: port_input_func
-
-   ; uint8_t port_input();
-
-   port_input:
-   	mov	r0, PORT_ADDRESS & 0xff
-   	movt	r0, PORT_ADDRESS >> 8
-   	ldrb	r0, [r0, 1]
-   	mov	pc, lr
+   :lines: 67, 70-75
 
 A função ``port_output`` escreve os dados que recebe em parâmetro
 no porto de saída. O endereço do porto, é carregado em R1 (linhas 4 e 5),
 porque R0 contém o argumento da função; a instrução ``strb r0, [r1, 1]``
 transfere a parte baixa de R0 para o registo do porto.
 
-.. code-block:: asm
+.. literalinclude:: ../code/led_click.s
+   :language: asm
    :linenos:
    :caption: Função ``port_output``
    :name: port_output_func_impar
-
-   ; void port_output(uint8_t);
-
-   port_output:
-   	mov	r1, PORT_ADDRESS & 0xff
-   	movt	r1, PORT_ADDRESS >> 8
-   	strb	r0, [r1, 1]
-   	mov	pc, lr
+   :lines: 78, 80-85
 
 Relativamente à solução usada no exemplo da :numref:`Portos_exemplo2`,
 em que a tradução para *assembly* destas funções foi por subtituição direta

@@ -28,24 +28,12 @@ dá-se quando o botão é premido. Nessa altura inverte-se o valor lógico
 da variável ``blink_state``, que representa o estado de intermitência do LED
 -- em atividade de intermitência ou desligado.
 
-
- .. code-block:: c
+.. literalinclude:: ../code/blink_button.s
+   :language: c
    :linenos:
    :caption: Programa de controlo do pisca-pisca
    :name: blink_button
-
-   void main() {
-   	blink_init();
-   	while (1) {
-   		while ((port_input() & BUTTON_MASK) != 0)
-   			blink_processing();
-
-   		blink_state = !blink_state;
-
-   		while (port_input_test(BUTTON_MASK) == 0)
-   			blink_processing();
-   	}
-   }
+   :lines: 43-54
 
 Enquanto o algoritmo se concentra no teste do botão de pressão,
 é necessário assegurar a intermitência do LED.
@@ -53,21 +41,12 @@ Essa tarefa é realizada pela função ``blink_processing``
 (:numref:`blink_processing`) que é continuamente invocada nas linhas 5 ou 10 da
 :numref:`blink_button`.
 
- .. code-block:: c
+.. literalinclude:: ../code/blink_button.s
+   :language: c
    :linenos:
    :caption: Geração da intermitência do pisca-pisca
    :name: blink_processing
-
-   void blink_processing() {
-   	if (timer_elapsed(initial) >= HALF_PERIOD) {
-   		if (blink_state)
-   			led_state = ~led_state;
-   		else
-   			led_state = 0;
-   		port_output(LED_MASK & led_state);
-   		initial = timer_read();
-   	}
-   }
+   :lines: 115-124
 
 A variável ``led_state`` representa o estado instantâneo do LED -- aceso ou apagado.
 
@@ -83,17 +62,12 @@ Na função ``blink_init`` (:numref:`blink_init`) procede-se
 ao início da primeira temporização (linha 4)
 e à atualização do LED (linha 5).
 
- .. code-block:: c
+.. literalinclude:: ../code/blink_button.s
+   :language: c
    :linenos:
    :caption: Inicialização do estado do pisca-pisca
    :name: blink_init
-
-   void blink_init() {
-   	led_state = 0;
-   	blink_state = 0;
-   	initial = timer_read();
-   	port_output(LED_MASK & led_state);
-   }
+   :lines: 90-95
 
 **Código completo:** :download:`blink_button.s<../code/blink_button.s>`
 

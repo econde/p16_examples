@@ -17,7 +17,10 @@ addressof_stack_end:
 	.space	64
 stack_end:
 
-/*------------------------------------------------------------------------------
+/*==============================================================================
+
+#define	BUTTON_MASK	(1 << 2)
+#define	LED_MASK	(1 << 4)
 
 int main() {
 	while (true) {
@@ -28,10 +31,10 @@ int main() {
 	}
 }
 */
-	.equ	BUTTON_MASK, (1 << 2)
-	.equ	LED_MASK, (1 << 4)
+	.equ	BUTTON_MASK,	(1 << 2)
+	.equ	LED_MASK,	(1 << 4)
 
-	.equ	PORT_ADDRESS, 0xcc00
+	.equ	PORT_ADDRESS,	0xcc00
 
 	.text
 main:

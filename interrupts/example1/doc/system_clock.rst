@@ -73,32 +73,12 @@ até atingir o valor ``HALF_PERIOD``.
 A função auxiliar ``interrupt_enable`` coloca a flag I a um,
 para tornar o processador receptivo a interrupções.
 
-.. code-block:: c
+.. literalinclude:: ../code/system_clock.s
+   :language: c
    :linenos:
    :caption: Implementação de relógio de sistema por *software*
    :name: system_clock
-
-   #define LED_MASK 1
-
-   #define HALF_PERIOD 50
-
-   volatile uint16_t system_clock;
-
-   void main() {
-   	uint8_t led_state = ~0;
-   	interrupt_enable();
-   	while (1) {
-   		port_output(led_state & LED_MASK);
-   		uint16_t initial = system_clock;
-   		while (system_clock - initial < HALF_PERIOD)
-   			;
-   		led_state = ~led_state;
-   	}
-   }
-
-   void isr() {
-   	system_clock++;
-   }
+   :lines: 31-51
 
 Em linguagem C, o qualificador ``volatile`` serve para indicar que o conteúdo
 de uma variável pode alterar-se de maneira desconhecida do compilador.
@@ -130,49 +110,22 @@ Esse endereço deve conter código que conduza à ISR.
 Na :numref:`startup`, esse código corresponde a ``ldr pc, addressof_isr`` (linha 3)
 que carrega em PC o endereço de ``isr``, provocando a passagem da execução para a ISR.
 
-.. code-block:: asm
+.. literalinclude:: ../code/system_clock.s
+   :language: c
    :linenos:
    :caption: Código de arranque adequado ao atendimento de interrupções
    :name: startup
-
-   	.section .startup
-   	b	_start
-   	ldr	pc, addressof_isr
-   _start:
-   	ldr	sp, addressof_stack_top
-   	ldr	r0, addressof_main
-   	mov	r1, pc
-   	add	lr, r1, 4
-   	mov	pc, r0
-   	b	.
-   addressof_stack_top:
-   	.word	stack_top
-   addressof_main:
-   	.word	main
-   addressof_isr:
-   	.word	isr
-
-   	.text
-
-   	.data
-
-   	.section .stack
-   	.equ	STACK_SIZE, 1024
-   	.space	STACK_SIZE
-   stack_top:
+   :lines: 1-26
 
 O acesso às flags do processador, entre elas a *flag* I, é realizado pelas instruções
 ``msr`` e ``mrs``.
 
-.. code-block:: asm
+.. literalinclude:: ../code/system_clock.s
+   :language: asm
    :linenos:
    :caption: Código *Assembly* equivalente à função ``interrupt_enable``
    :name: interrupt_enable
-
-   	.equ	IFLAG_MASK, (1 << 4)
-
-   	mov	r0, IFLAG_MASK
-   	msr	cpsr, r0
+   :lines: 60-61, 69-70
 
 A instrução ``msr cpsr, r0`` coloca a *flags* **I** a um,
 permitindo ao processador aceitar interrupções.
@@ -186,30 +139,12 @@ sem que o programador controle o local do programa em que ocorre.
 Neste programa ocorre na função ``main``, durante a execução do ciclo ``while (1)``,
 entre as linhas 6 e 19.
 
-.. code-block:: asm
+.. literalinclude:: ../code/system_clock.s
+   :language: asm
    :linenos:
    :caption: Programa principal em *Assembly*
    :name: main_asm
-
-   main:
-   	mov	r4, 0				; uint8_t led_state = 0
-   	mov	r0, IFLAG_MASK			; interrupt_enable();
-   	msr	cpsr, r0
-   while:               			; while (1) {
-   	mov	r0, LED_MASK
-   	and	r0, r0, r4
-   	bl 	port_output			; port_output(led_state & LED_MASK);
-   	ldr	r1, addressof_system_clock
-   	ldrb	r5, [r1]			; uint16_t initial = system_clock;
-   while1:              			; while (
-   	ldr	r0, [r1]			;	system_clock - initial
-   	sub	r0, r0, r5
-   	mov	r2, HALF_PERIOD & 0xff		;	< HALF_PERIOD)
-   	mov	r2, HALF_PERIOD >> 8
-   	cmp	r0, r2
-   	blo	while1
-   	mvn	r4, r4				; led_state = ~led_state;
-   	b	while
+   :lines: 67-86
 
 Na altura em que o programa é interrompido, os registos do processador contêm dados
 que não podem ser corrompidos.
@@ -230,25 +165,12 @@ também comuta o processador de "modo interrupção" para "modo normal",
 restaurando assim, os conteúdos prévios dos registos CPSR e LR
 -- CPSR por cópia de SPSR e LR por alteração da visibilidade das duas instâncias deste registo.
 
-
-.. code-block:: asm
+.. literalinclude:: ../code/system_clock.s
+   :language: asm
    :linenos:
    :caption: *Interrupt Service Rotine*
    :name: isr_asm
-
-   	.text
-   isr:
-   	push	r0
-   	push	r1
-
-   	ldr	r1,addressof_system_clock		; system_clock++;
-   	ldr	r0,[r1]
-   	add	r0,r0, 1
-   	str	r0,[r1]
-
-   	pop	r1
-   	pop	r0
-   	movs	pc, lr
+   :lines: 89-104
 
 
 **Código completo:** :download:`system_clock.s<../code/system_clock.s>`

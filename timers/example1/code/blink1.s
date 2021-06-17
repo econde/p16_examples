@@ -23,11 +23,15 @@ addressof_main:
 stack_end:
 
 /*==============================================================================
+#define	LED_MASK	(1 << 0)
+#define	PERIOD		100
+#define	HALF_PERIOD	(PERIOD / 2)
+
 void main() {
 	while (1) {
-		output_write(LED_MASK);
+		port_output(LED_MASK);
 		timer_delay(HALF_PERIOD);
-		output_write(0);
+		port_output(0);
 		timer_delay(HALF_PERIOD);
 	}
 }
