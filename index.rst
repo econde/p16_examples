@@ -8,6 +8,7 @@ Introdução
 
 Este documento apresenta um conjunto de exemplos de aplicação do P16
 na interação com dispositivos periféricos.
+
 Os exemplos são apresentados numa sequência que visa a introdução gradual de soluções.
 Devem se analisados pela ordem com que estão apresentados,
 quer pela ordem dos capítulos, quer dentro de cada capítulo.
@@ -31,7 +32,7 @@ No final dos exemplos existem:
    - *link* para o código do programa completo;
    - *link* para o circuito Logisim [#f1]_ onde o exemplo pode ser simulado.
 
-.. sidebar:: *Feedbak*
+.. sidebar:: *Feedback*
 
    Alertas para erros, comentários e sugestões devem ser enviados para `ezequiel.conde[at]isel.pt`.
 

@@ -27,17 +27,18 @@ O programa da :numref:`lamp_delay` aplica um método de deteção de pressão do
 idêntico ao do exemplo da :numref:`Portos_exemplo3`.
 Os primeiros dois ciclos *while* (linhas 4 a 7),
 servem para detetar a sequência soltar-premir o botão.
-A esta deteção segue-se o acender o LED (linha 8).
+A esta deteção segue-se o acender o LED (linha 9).
 Nesta altura regista-se o momento inicial da temporização (valor corrente do *timer*)
-na variável ``time_initial`` (linha 9).
-Nos *whiles* seguintes (linhas 10 a 14) realizam-se duas verificações em simultâneo:
+na variável ``time_initial`` (linha 10).
+Nos *whiles* seguintes (linhas 12 a 16) realizam-se duas verificações em simultâneo:
 a sequência soltar-premir o botão e o fim da temporização.
-Aquilo que acontecer primeiro faz o
-programa evoluir para uma nova iteração do *while* principal,
-onde começa por se apagar o LED.
+Aquilo que acontecer primeiro,
+faz o programa evoluir para uma nova iteração do *while* principal,
+onde começa por se apagar o LED (linha 3).
+
 A função ``timer_elapsed`` recebe o valor do *timer* no momento inicial da temporização
 e retorna o tempo que passou desde esse momento até agora.
-Este valor é comparado com LED_TIME que representa
+Esse tempo é comparado com LED_TIME que representa
 o tempo máximo que o LED deve ficar aceso.
 
 .. code-block:: c

@@ -19,11 +19,11 @@ Note-se que os portos estão ligados na parte alta do barramento de dados (D8-15
 
 O programa da :numref:`led_button` lê continuamente o porto de entrada -- ``port_input()`` --
 e testa o *bit* da posição do botão -- ``& BUTTON_MASK``.
-Se o valor lógico do *bit* do botão for zero, significa que o botão está premido,
-então escreve no porto de saída um valor com o *bit* a um na posição do LED
--- ``port_output(LED_MASK)`` -- para acender o LED.
-Se o valor lógico do *bit* do botão for um, significa que o botão está solto,
-então escreve o valor zero -- ``port_output(0)`` -- para apagar o LED.
+Se o valor lógico do *bit* do botão for **zero**, significa que o botão está premido,
+então escreve no porto de saída um valor com o *bit* da posição do LED a um,
+para acender o LED -- ``port_output(LED_MASK)``.
+Se o valor lógico do *bit* do botão for **um**, significa que o botão está solto,
+então escreve o valor zero, para apagar o LED -- ``port_output(0)``.
 
  .. code-block:: c
    :linenos:
@@ -43,7 +43,7 @@ então escreve o valor zero -- ``port_output(0)`` -- para apagar o LED.
    }
 
 Na tradução do programa para linguagem *assembly* (:numref:`led_button_asm`),
-as funções ``port_input`` e ``port_output`` são traduzidas pelas sequência de instruções ::
+as funções ``port_input`` e ``port_output`` são traduzidas pelas sequências de instruções ::
 
    ldr  r1, addr_port
    ldrb r0, [r1, 1]
@@ -55,7 +55,7 @@ e ::
 
 respectivamente.
 
-O endereço do porto é carregado em registo de maneira diferente do exemplo :numref:`Portos_exemplo1`.
+O endereço do porto é carregado em registo de maneira diferente da :numref:`Portos_exemplo1`.
 Aqui, o endereço é carregado pela instrução ``ldr  r1, addressof_port`` (linha 9). Esta instrução
 usa endereçamento relativo ao PC. A posição de memória ``addressof_port`` contém o endereço do porto
 e está posicionada num endereço superior ao da instrução ``ldr``
@@ -106,15 +106,15 @@ O teste do estado do botão é realizado nas linhas 12 e 13.
 Se o botão estiver premido,
 o valor do *bit* de R0 que lhe corresponde é zero,
 o que faz com que o resultado da operação AND seja zero, e a *flag* Z seja afetada com um.
-A instrução ``bzc if_else`` direciona a execução do programa para o ramo *else* do *if*,
-onde se coloca o valor zero em R0 (linha 17).
+A instrução ``bzc if_else`` deixa avançar o processamento para a linha 14,
+onde R0 recebe o valor do símbolo LED_MASK.
 
 Se o botão não estiver premido,
 o valor do *bit* de R0 que lhe corresponde é um, devido à resistência *pull-up*,
 o que faz com que o resultado da operação AND seja diferente de zero,
 e a *flag* Z seja afetada com zero.
-A instrução ``bzc if_else`` deixa avançar o processamento para a linha 14,
-onde R0 recebe o valor do símbolo LED_MASK.
+A instrução ``bzc if_else`` direciona a execução do programa para o ramo *else* do *if*,
+onde se coloca o valor zero em R0 (linha 17).
 
 No final (linhas 19 e 20) o estado do LED é atualizado
 com o valor lógico previamente colocado em R0.

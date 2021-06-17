@@ -63,7 +63,7 @@ A sequência ::
 
 carrega o endereço do porto no registo R1.
 
-Esta sequência de instuções (mov - movt) forma um padrão de programação para
+Esta sequência de instuções (`mov` - `movt`) forma um padrão de programação para
 carregamento em registo de qualquer valor numérico representado a 16 *bits*.
 Este valor numérico deve ser o resultado de um expressão, determinável em
 tempo de compilação, que não dependa de uma *label*.
@@ -73,12 +73,11 @@ parâmetro da instrução ``mov`` é inferior a 0x100
 -- que corresponde à gama de valores codifiáveis na instrução ``mov``.
 
 A expressão ``PORT_ADDRESS >> 8`` é usada para extrair a componente de maior peso
-do endereço do porto. (A instrução ``movt`` poderia ser dispensada para
-endereços inferiores a 0x100.)
+do endereço do porto. Se o endereços for inferior a 0x100 o valor desta expressão é zero.
 
 Neste exemplo, ``PORT_ADDRESS`` é equivalente a ``0xcc00``.
 Para utilizar os portos internos do SDP16,
-``PORT_ADDRESS`` deve ser equivalente a um valor par entre ``0xff00`` e ``0xff3e``.
+``PORT_ADDRESS`` deve ser equivalente a um valor par, entre ``0xff00`` e ``0xff3e``.
 
 **Código fonte:** :download:`in_out.s<../code/in_out.s>`
 

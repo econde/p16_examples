@@ -19,7 +19,7 @@ determina-se o tempo que passou.
 Neste exemplo é realizado um *timer* elementar baseado em dois circuitos integrados
 `74590 <https://www.ti.com/lit/ds/symlink/sn74hc590a.pdf?ts=1618508958868&ref_url=https%253A%252F%252Fwww.google.co.uk%252F>`_
 que em conjunto formam um contador de 16 *bits* -- :numref:`sdp16_timer_74590`.
-Este circuito contém um contador e um registo com saída em *tri-state*.
+Este circuito integrado contém um contador e um registo com saída em *tri-state*.
 A função de registo é anulada ao ligar RCLK a CCLK, a saída em *tri-state*,
 controlada pelo sinal OE,
 permite acoplamento direto ao processador como um porto de entrada.
@@ -31,7 +31,7 @@ Admitindo uma frequência de 100Khz, uma unidade de contagem corresponde a 10 mi
 
 O contador muda de estado nas transições descendentes do sinal de relógio,
 enquanto o processador, ao realizar o ciclo de leitura,
-capta os dados presentes no barramento de dados, no final do sinal nRD,
+capta os dados presentes no barramento de dados no final do sinal nRD,
 coincidente com uma transição ascendente.
 Se o contador evoluisse na mesma transição do sinal de relógio
 em que o processador capta os dados do barramento de dados,

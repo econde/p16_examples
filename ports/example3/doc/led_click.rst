@@ -14,12 +14,12 @@ Para realizar esta operação é necessário detetar a alteração de estado do 
 Não basta verificar se o botão está premido.
 Para isso são realizados dois ciclos,
 um retém o processamento enquanto o botão não está premido (linhas 5 e 6)
-e o outro retém o processamento enquanto o botão está premido (linhas 9 e 10).
+e o outro retém o processamento enquanto o botão está premido (linhas 11 e 12).
 A passagem do primeiro ciclo para o segundo,
 acontece quando o botão é premido.
 Nessa altura inverte-se a representação de estado do LED,
-na variável ``led_state`` (linha 7),
-e em seguida atualiza-se o porto de saída (linha 8).
+na variável ``led_state`` (linha 8),
+e em seguida atualiza-se o porto de saída (linha 9).
 
  .. code-block:: c
    :linenos:
@@ -34,8 +34,8 @@ e em seguida atualiza-se o porto de saída (linha 8).
    			;
 
    		led_state = ~led_state;
-
    		port_output(led_state & LAMP_MASK);
+
    		while ((port_input() & BUTTON_MASK) == 0)
    			;
    	}
@@ -77,9 +77,9 @@ e cumprindo o protocolo convencionado de passagem de argumentos e retorno de val
    	bzs	while2
    	b	while
 
-A função ``uint8_t port_input()`` devolve os dados que se apresentam à entrada do porto.
+A função ``port_input`` devolve os dados que se apresentam à entrada do porto.
 O endereço do porto, representado pelo símbolo ``PORT_ADDRESS``,
-é carregado em R0 (linhas 2 e 3); a instrução ``ldrb r0, [r0, 1]``
+é carregado em R0 (linhas 4 e 5); a instrução ``ldrb r0, [r0, 1]``
 transfere o valor presente nesse momento à entrada do porto para R0,
 por ser o registo convencionado para o retorno de valores de funções.
 
@@ -88,19 +88,25 @@ por ser o registo convencionado para o retorno de valores de funções.
    :caption: Função ``port_input``
    :name: port_input_func
 
+   ; uint8_t port_input();
+
    port_input:
    	mov	r0, PORT_ADDRESS & 0xff
    	movt	r0, PORT_ADDRESS >> 8
    	ldrb	r0, [r0, 1]
    	mov	pc, lr
 
-A função ``void port_output(uint8_t)`` escreve os dados que recebe em parâmetro
-no porto de saída.
+A função ``port_output`` escreve os dados que recebe em parâmetro
+no porto de saída. O endereço do porto, é carregado em R1 (linhas 4 e 5),
+porque R0 contém o argumento da função; a instrução ``strb r0, [r1, 1]``
+transfere a parte baixa de R0 para o registo do porto.
 
 .. code-block:: asm
    :linenos:
    :caption: Função ``port_output``
-   :name: port_output_func
+   :name: port_output_func_impar
+
+   ; void port_output(uint8_t);
 
    port_output:
    	mov	r1, PORT_ADDRESS & 0xff
@@ -110,8 +116,8 @@ no porto de saída.
 
 Relativamente à solução usada no exemplo da :numref:`Portos_exemplo2`,
 em que a tradução para *assembly* destas funções foi por subtituição direta
-(*inline*), esta solução tem a desvantagem de executar mais instruções.
-Pelo menos, a instrução `bl` para invocação e a instrução `mov pc, lr` para retorno.
+(*inline*), esta solução tem a desvantagem de executar mais instruções por cada acesso a porto
+-- a instrução `bl` para invocação e a instrução `mov pc, lr` para retorno.
 
 
 **Código fonte:** :download:`led_click.s<../code/led_click.s>`

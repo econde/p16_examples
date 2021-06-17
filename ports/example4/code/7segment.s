@@ -73,10 +73,10 @@ void main() {
    }
 /*------------------------------------------------------------------------------
 */
-	.equ	LED_MASK, (1 << 7)
-	.equ	DISPLAY_MASK, 0b01111111
-	.equ	BUTTON_UPDOWN_MASK, (1 << 1)
-	.equ	BUTTON_CLOCK_MASK, (1 << 6)
+	.equ	LED_MASK,		(1 << 7)
+	.equ	DISPLAY_MASK,		0b01111111
+	.equ	BUTTON_UPDOWN_MASK,	(1 << 1)
+	.equ	BUTTON_CLOCK_MASK,	(1 << 6)
 
 	.text
 
@@ -95,7 +95,7 @@ main:
 	mvn	r6, r0
 
 	add	r5, r5, 0	; port_write(direction_state ? LED_MASK : 0, LED_MASK);
-	bzc	main_cond1
+	bzs	main_cond1
 	mov	r0, LED_MASK
 	b	main_cond1_end
 main_cond1:
@@ -117,8 +117,8 @@ main_while:
 	and	r0, r7, r1
 	bzs	main_if1_end		; && (port_actual & BUTTON_UPDOWN_MASK) != 0) {
 	mvn	r5, r5			; direction_state = ~direction_state;
-	add	r5, r5, 0		; port_write(direction_state ? LED_MASK : 0, LED_MASK);
-	bzc	main_cond2
+	add	r5, r5, 0
+	bzs	main_cond2		; port_write(direction_state ? LED_MASK : 0, LED_MASK);
 	mov	r0, LED_MASK
 	b	main_cond2_end
 main_cond2:

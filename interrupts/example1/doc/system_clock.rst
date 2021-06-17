@@ -13,7 +13,7 @@ ou uma combinação de ambos.
 
 Neste exemplo realiza-se um relógio de sistema no SDP16, baseado numa variável em memória.
 O incremento dessa variável é realizado numa rotina de atendimento de interrupção
--- ISR, do inglês *Interrupt Service Rotine* -- que é invocada por acção de um sinal de relógio,
+-- ISR (*Interrupt Service Rotine*) -- que é invocada por acção de um sinal de relógio,
 aplicado à entrada de interrupção do processador.
 
 Para teste é utilizado um programa que faz piscar um LED ligado
@@ -49,9 +49,9 @@ Como realizar a eliminação do pedido de interrupção (acção CLR sobre o fli
 
 Neste exemplo tira-se partido dos sinais de *status* S0 e S1 disponíveis no P16
 (:numref:`p16_osc_flip_clr_s0s1_irq`).
-Este sinais são ambos colocados a um durante o atendimento de uma interrupção.
+Este sinais são ambos colocados a um no atendimento de uma interrupção.
 Este método tem a vantagem de realizar automaticamente a acção CLR do *flip-flop*.
-Não sendo necessário realizar nenhuma operação explícita.
+Não sendo necessário programar nenhuma ação explícita.
 
 .. figure:: p16_osc_flip_clr_s0s1_irq.png
    :name: p16_osc_flip_clr_s0s1_irq
@@ -72,7 +72,6 @@ o valor de ``system_clock`` aumenta e a diferença também aumenta,
 até atingir o valor ``HALF_PERIOD``.
 A função auxiliar ``interrupt_enable`` coloca a flag I a um,
 para tornar o processador receptivo a interrupções.
-A função auxiliar ``irequest_clear`` elimina o pedido de interrupção no *flip-flop*.
 
 .. code-block:: c
    :linenos:
@@ -100,6 +99,22 @@ A função auxiliar ``irequest_clear`` elimina o pedido de interrupção no *fli
    void isr() {
    	system_clock++;
    }
+
+Em linguagem C, o qualificador ``volatile`` serve para indicar que o conteúdo
+de uma variável pode alterar-se de maneira desconhecida do compilador.
+
+Por otimização na tradução para linguagem *assembly*,
+o compilador pode omitir acessos à memória para leitura de variáveis
+que saiba não terem sido alteradas.
+Como pode ser o caso de ``initial`` na expressão da condição do *while* da linha 13.
+
+O compilador realiza sempre acesso de leitura das variáveis com qualificador ``volatile``
+quando são invocadas. Como é o caso de ``system_clock``,
+na expressão do *while* da linha 13.
+
+Na realidade o conteúdo desta variável é alterado
+durante o processamento do *while* da linha 13, por ação da ISR.
+
 
 Programação em *Assembly*
 #########################
@@ -160,7 +175,7 @@ O acesso às flags do processador, entre elas a *flag* I, é realizado pelas ins
    	msr	cpsr, r0
 
 A instrução ``msr cpsr, r0`` coloca a *flags* **I** a um,
-permitindo ao processador passar a aceitar interrupções.
+permitindo ao processador aceitar interrupções.
 O símbolo IFLAG_MASK é equivalente a um valor com o *bit* da posição quatro a um,
 que corresponde à posição da *flag* **I** nos registos CPSR e SPSR.
 
@@ -203,12 +218,12 @@ se apresenta alterado depois de ter ocorrido uma interrupção.
 
 Os registos LR e CPSR são preservados pelo processador,
 por ação da mudança de modo, de "modo normal" para "modo interrupção".
-Os restantes registos ficam a cargo do programador ao definir o código da ISR.
+Os restantes registos ficam a cargo do programador, ao definir o código da ISR.
 O critério é garantir que o conteúdo de todos os registos utilizados é salvaguardado.
 Na :numref:`isr_asm` são utilizados apenas os registos R0 e R1.
-Os seu conteúdo prévio é salvo em *stack* à entrada na função (linhas 4 e 5)
-e é reposto à saída (linhas 16 e 17).
-O retorno ao programa interrompido é efetivado pela instrução ``movs pc, lr`` (linha 18).
+O seu conteúdo prévio é salvo em *stack* à entrada na função (linhas 3 e 4)
+e é reposto à saída (linhas 11 e 12).
+O retorno ao programa interrompido é efetivado pela instrução ``movs pc, lr`` (linha 13).
 Esta instrução, além de colocar o conteúdo de LR em PC,
 e assim retornar ao local onde o programa tinha sido interrompido,
 também comuta o processador de "modo interrupção" para "modo normal",
