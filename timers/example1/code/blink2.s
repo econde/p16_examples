@@ -25,7 +25,7 @@ stack_end:
 /*==============================================================================
 */
 	.equ	LED_MASK,	(1 << 0)
-	.equ	PERIOD,		1000
+	.equ	PERIOD,		50000
 	.equ	HALF_PERIOD, 	PERIOD / 2
 
 /*------------------------------------------------------------------------------
@@ -97,5 +97,5 @@ port_output:
 timer_read:
 	mov	r1, TIMER_ADDRESS & 0xff
 	movt	r1, TIMER_ADDRESS >> 8
-	ldr	r0, [r0]
+	ldr	r0, [r1]
 	mov	pc, lr
