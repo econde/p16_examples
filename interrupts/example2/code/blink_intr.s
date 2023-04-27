@@ -34,15 +34,15 @@ int blink_state;
 int led_state;
 
 void main() {
-	port_output(led_state | LED_MASK);
+	outport_write(led_state | LED_MASK);
 	interrupt_enable():
 	while (1) {
-		while ((port_input() & BUTTON_MASK) != 0)
+		while ((inport_read() & BUTTON_MASK) != 0)
 			;
 
 		blink_state = !blink_state;
 
-		while ((port_input() & BUTTON_MASK) == 0)
+		while ((inport_read() & BUTTON_MASK) == 0)
 			;
 	}
 }
@@ -62,17 +62,17 @@ led_state:
 	.equ	IFLAG_MASK,	(1 << 4)
 
 main:
-	ldr	r1, addressof_led_state	; port_output(led_state | LED_MASK);
+	ldr	r1, addressof_led_state	; outport_write(led_state | LED_MASK);
 	ldrb	r0, [r1]
 	mov	r1, LED_MASK
 	and	r0, r0, r1
-	bl	port_output
+	bl	outport_write
 
 	mov	r0, IFLAG_MASK		; interrupt_enable();
 	msr	cpsr, r0
 while:					; while (1) {
 while1:
-	bl	port_input		; while ((port_input() & BUTTON_MASK) != 0)
+	bl	inport_read		; while ((inport_read() & BUTTON_MASK) != 0)
 	mov	r1, BUTTON_MASK
 	and	r0, r0, r1
 	bzc	while1
@@ -81,7 +81,7 @@ while1:
 	mvn	r0, r0
 	strb	r0, [r1]
 while2:
-	bl	port_input		; while ((port_input() & BUTTON_MASK) == 0)
+	bl	inport_read		; while ((inport_read() & BUTTON_MASK) == 0)
 	mov	r1, BUTTON_MASK
 	and	r0, r0, r1
 	bzs	while2
@@ -93,7 +93,7 @@ void isr() {
 		led_state = ~led_state;
 	else
 		led_state = 0;
-	port_output(led_state  & LED_MASK);
+	outport_write(led_state  & LED_MASK);
 	irequest_clear();
 }
 */
@@ -118,9 +118,9 @@ isr_if_else:
 	mov	r0, 0			; led_state = 0;
 isr_if_end:
 	strb	r0, [r1]
-	mov	r1, LED_MASK		; port_output(led_state  & LED_MASK);
+	mov	r1, LED_MASK		; outport_write(led_state  & LED_MASK);
 	and	r0, r0, r1
-	bl	port_output
+	bl	outport_write
 
 	mov	r0, INTR_CLEAR_ADDRESS & 0xff
 	movt	r0, INTR_CLEAR_ADDRESS >> 8
@@ -142,13 +142,13 @@ addressof_led_state:
 /*------------------------------------------------------------------------------
 */
 	.equ	PORT_ADDRESS, 0xff00
-port_input:
+inport_read:
 	mov	r0, PORT_ADDRESS & 0xff
 	movt	r0, PORT_ADDRESS >> 8
 	ldrb	r0,[r0]
 	mov	pc, lr
 
-port_output:
+outport_write:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0,[r1]

@@ -42,13 +42,13 @@ void main() {
 main:
 while:
 	mov	r0, LED_MASK
-	bl	port_output
+	bl	outport_write
 	mov	r0, HALF_PERIOD & 0xff
 	movt	r0, HALF_PERIOD >> 8
 	bl 	delay
 
 	mov	r0, 0
-	bl	port_output
+	bl	outport_write
 	mov	r0, HALF_PERIOD & 0xff
 	movt	r0, HALF_PERIOD >> 8
 	bl 	delay
@@ -79,11 +79,11 @@ delay_while:
 	pop	pc
 
 /*------------------------------------------------------------------------------
-	void port_output(uint8_t);
+	void outport_write(uint8_t);
 */
 	.equ	PORT_ADDRESS, 0xff00
 
-port_output:
+outport_write:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0, [r1]

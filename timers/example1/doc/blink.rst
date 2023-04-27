@@ -9,6 +9,8 @@ ligado no porto de saída do SDP16 conforme a :numref:`sdp16_led`.
 .. figure:: sdp16_led.png
    :name: sdp16_led
    :align: center
+   :width: 224px
+   :height: 186px
 
    Porto de saída do SDP16 com LED no *bit* 0
 

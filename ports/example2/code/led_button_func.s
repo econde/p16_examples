@@ -21,10 +21,10 @@ stack_top:
 
 int main() {
 	while (true) {
-		if ((port_input() & BUTTON_MASK) != 0)
-			port_output(LED_MASK);
+		if ((inport_read() & BUTTON_MASK) != 0)
+			outport_write(LED_MASK);
 		else
-			port_output(0);
+			outport_write(0);
 	}
 }
 */
@@ -36,7 +36,7 @@ int main() {
 	.text
 main:
 while:
-	bl	port_input	; if ((port_input() & BUTTON_MASK) != 0)
+	bl	inport_read	; if ((inport_read() & BUTTON_MASK) != 0)
 	mov	r2, BUTTON_MASK
 	and	r0, r0, r2
 	bzs	if_else
@@ -45,22 +45,22 @@ while:
 if_else:
 	mov	r0, 0
 if_end:
-	bl	port_output	; port_output(...);
+	bl	outport_write	; outport_write(...);
 	b	while
 
 /*------------------------------------------------------------------------------
-	uint8_t port_input();
+	uint8_t inport_read();
 */
-port_input:
+inport_read:
 	mov	r0, PORT_ADDRESS & 0xff
 	movt	r0, PORT_ADDRESS >> 8
 	ldrb	r0,[r0]
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	void port_output(uint8_t);
+	void outport_write(uint8_t);
 */
-port_output:
+outport_write:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0,[r1]

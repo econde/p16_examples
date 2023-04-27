@@ -48,7 +48,7 @@ A função auxiliar ``irequest_clear`` elimina o pedido de interrupção no *fli
 Programação em Assembly
 #######################
 
-Neste exemplo o aspeto relevante a assinalar é a invocação da função ``port_output``
+Neste exemplo o aspeto relevante a assinalar é a invocação da função ``outport_write``
 na ISR.
 
 Quando se invoca uma função não se deve aplicar eventual conhecimento

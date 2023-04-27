@@ -62,7 +62,7 @@ void main() {
 			led_state = ~led_state;
 		else
 			led_state = 0;
-		port_output(led_state & LED_MASK);
+		outport_write(led_state & LED_MASK);
 		timer_delay(HALF_PERIOD);
 	}
 }
@@ -82,7 +82,7 @@ led_state:
 
 	.text
 main:
-	ldr	r1, addr_led_state	; port_output(led_state & LED_MASK);
+	ldr	r1, addr_led_state	; outport_write(led_state & LED_MASK);
 	ldrb	r0, [r1]
 	mov	r1, LED_MASK
 	and	r0, r0, r1
@@ -103,7 +103,7 @@ if_else:
 	mov	r0, 0
 if_end:
 	strb	r0, [r1]
-	mov	r2, LED_MASK		; port_output(led_state & LED_MASK);
+	mov	r2, LED_MASK		; outport_write(led_state & LED_MASK);
 	and	r0, r0, r12
 	ldr	r1, addr_port
 	strb	r0, [r1]

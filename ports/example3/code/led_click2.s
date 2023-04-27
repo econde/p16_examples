@@ -27,14 +27,14 @@ stack_top:
 
 void main() {
 	uint8_t led_state = 0;	/* r4 */
-	uint8_t button_prev = port_input() & BUTTON_MASK;	/* r5 */
+	uint8_t button_prev = inport_read() & BUTTON_MASK;	/* r5 */
 
-	port_output(led_state);
+	outport_write(led_state);
 	while (1) {
-		uint8_t button = port_input() & BUTTON_MASK;	/* r6 */
+		uint8_t button = inport_read() & BUTTON_MASK;	/* r6 */
 		if (button_prev == 0 && button != 0) {
 			led_state = ~led_state;
-			port_output(led_state & LED_MASK);
+			outport_write(led_state & LED_MASK);
 		}
 		button_prev = button;
 	}
@@ -44,13 +44,13 @@ void main() {
 	.text
 main:
 	mov	r4, 0		; uint8_t led_state = 0;
-	bl	port_input	; uint8_t button_prev = port_input() & BUTTON_MASK;
+	bl	inport_read	; uint8_t button_prev = inport_read() & BUTTON_MASK;
 	mov	r1, BUTTON_MASK
 	and	r5, r0, r1
-	mov	r0, r4		; port_output(led_state);
-	bl	port_output
+	mov	r0, r4		; outport_write(led_state);
+	bl	outport_write
 while:
-	bl	port_input	; uint8_t button = port_input() & BUTTON_MASK;
+	bl	inport_read	; uint8_t button = inport_read() & BUTTON_MASK;
 	mov	r1, BUTTON_MASK
 	and	r6, r0, r1
 	and	r5, r5, r5	; if (button_prev == 0
@@ -58,22 +58,22 @@ while:
 	and	r6, r6, r6	; 	 && button != 0) {
 	bzs	if_end
 	not	r5, r5		; led_state = ~led_state;
-	mov	r0, LED_MASK	; port_output(led_state & LED_MASK);
+	mov	r0, LED_MASK	; outport_write(led_state & LED_MASK);
 	and	r0, r0, r5
-	bl	port_output
+	bl	outport_write
 if_end:
 	mov	r4, r6		; button_prev = button;
 	b	while
 
 /*------------------------------------------------------------------------------
 */
-port_input:
+inport_read:
 	mov	r0, PORT_ADDRESS & 0xff
 	movt	r0, PORT_ADDRESS >> 8
 	ldrb	r0,[r0, 1]
 	mov	pc, lr
 
-port_output:
+outport_write:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0,[r1, 1]

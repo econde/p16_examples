@@ -38,7 +38,7 @@ stack_end:
    	uint8_t led_state = ~0;
    	interrupt_enable();
    	while (1) {
-   		port_output(led_state & LED_MASK);
+   		outport_write(led_state & LED_MASK);
    		uint16_t initial = system_clock;
    		while (system_clock - initial < HALF_PERIOD)
    			;
@@ -71,7 +71,7 @@ main:
 while:               			; while (1) {
 	mov	r0, LED_MASK
 	and	r0, r0, r4
-	bl 	port_output		; port_output(led_state & LED_MASK);
+	bl 	outport_write		; outport_write(led_state & LED_MASK);
 	ldr	r1, addressof_system_clock
 	ldr	r5, [r1]		; uint16_t initial = system_clock;
 while1:              			; while (
@@ -107,7 +107,7 @@ addressof_system_clock:
 */
 	.equ SDP16_PORT_ADDRESS, 0xff00
 
-port_output:
+outport_write:
 	mov	r1, SDP16_PORT_ADDRESS & 0xff
 	movt	r1, SDP16_PORT_ADDRESS >> 8
 	strb	r0,[r1]

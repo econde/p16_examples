@@ -24,33 +24,33 @@ stack_end:
 
 /*==============================================================================
 #define	LED_MASK	(1 << 0)
-#define	PERIOD		100
+#define	PERIOD		(100 * 16)			/* 100 milisegundos */
 #define	HALF_PERIOD	(PERIOD / 2)
 
 void main() {
 	while (1) {
-		port_output(LED_MASK);
+		outport_write(LED_MASK);
 		timer_delay(HALF_PERIOD);
-		port_output(0);
+		outport_write(0);
 		timer_delay(HALF_PERIOD);
 	}
 }
 */
-	.equ	LED_MASK,	(1 << 0)
-	.equ	PERIOD, 	100
-	.equ	HALF_PERIOD,	PERIOD / 2
+	.equ	LED_MASK, 1 << 0
+	.equ	PERIOD, 100 * 16
+	.equ	HALF_PERIOD, PERIOD / 2
 
 	.text
 main:
 while:
 	mov	r0, LED_MASK
-	bl	port_output
+	bl	outport_write
 	mov	r0, HALF_PERIOD & 0xff
 	movt	r0, HALF_PERIOD >> 8
 	bl 	delay
 
 	mov	r0, 0
-	bl	port_output
+	bl	outport_write
 	mov	r0, HALF_PERIOD & 0xff
 	movt	r0, HALF_PERIOD >> 8
 	bl 	delay
@@ -58,8 +58,8 @@ while:
 	b	while
 
 /*------------------------------------------------------------------------------
-void delay(uint16_t time) {
-	while (time-- > 0)
+void delay(uint16_t n) {
+	while (n-- > 0)
 		;
 }
 */
@@ -74,12 +74,12 @@ delay_exit:
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	void port_output(uint8_t);
+	void outport_write(uint8_t);
 */
 
 	.equ	PORT_ADDRESS, 0xff00
 
-port_output:
+outport_write:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0, [r1]

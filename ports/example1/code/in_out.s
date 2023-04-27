@@ -21,8 +21,8 @@ stack_end:
 
 int main() {
 	while (true) {
-		uint8_t a = port_input();
-		port_output(a);
+		uint8_t a = inport_read();
+		outport_write(a);
 	}
 }
 */

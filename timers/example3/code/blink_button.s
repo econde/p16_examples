@@ -43,12 +43,12 @@ timer_initial:
 void main() {
 	blink_init();
 	while (1) {
-		while ((port_input() & BUTTON_MASK) != 0)
+		while ((inport_read() & BUTTON_MASK) != 0)
 			blink_processing();
 
 		blink_state = !blink_state;
 
-		while (port_input_test(BUTTON_MASK) == 0)
+		while (inport_read_test(BUTTON_MASK) == 0)
 			blink_processing();
 	}
 }
@@ -63,7 +63,7 @@ main:
 	bl	blink_init
 while:				; while (1) {
 while1:
-	bl	port_input	; while ((port_input() & BUTTON_MASK) == 0)
+	bl	inport_read	; while ((inport_read() & BUTTON_MASK) == 0)
 	mov	r1, BUTTON_MASK
 	and	r0, r0, r1
 	bzc	while1_end
@@ -77,7 +77,7 @@ while1_end:
 	strb	r0, [r1]
 
 while2:
-	bl	port_input	; while ((port_input() & BUTTON_MASK) == 0)
+	bl	inport_read	; while ((inport_read() & BUTTON_MASK) == 0)
 	mov	r1, BUTTON_MASK
 	and	r0, r0, r1
 	bzs	while2_end
@@ -91,7 +91,7 @@ void blink_init() {
 	led_state = 0;
 	blink_state = 0;
 	timer_initial = timer_read();
-	port_output(LED_MASK & led_state);
+	outport_write(LED_MASK & led_state);
 }
 */
 	.text
@@ -106,8 +106,8 @@ blink_init:
 	bl	timer_read
 	str	r0, [r1]
 
-	mov	r0, 0		; port_output(LED_MASK & led_state);
-	bl	port_output
+	mov	r0, 0		; outport_write(LED_MASK & led_state);
+	bl	outport_write
 
 	pop	pc
 
@@ -118,7 +118,7 @@ void blink_processing() {
 			led_state = ~led_state;
 		else
 			led_state = 0;
-		port_output(LED_MASK & led_state);
+		outport_write(LED_MASK & led_state);
 		timer_initial = timer_read();
 	}
 }
@@ -145,9 +145,9 @@ if2_else:
 	mov	r0, 0		; led_state = 0;
 if2_end:
 	strb	r0, [r2]
-	mov	r1, LED_MASK	; port_output(LED_MASK & led_state);
+	mov	r1, LED_MASK	; outport_write(LED_MASK & led_state);
 	and	r0, r0, r1
-	bl	port_output
+	bl	outport_write
 	bl	timer_read	; timer_initial = timer_read();
 	ldr	r1, addressof_initial
 	str	r0, [r1]
@@ -187,20 +187,20 @@ timer_elapsed:
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	uint8_t port_input();
+	uint8_t inport_read();
 */
 	.equ	PORT_ADDRESS, 0xff00
 
-port_input:
+inport_read:
 	mov	r0, PORT_ADDRESS & 0xff
 	movt	r0, PORT_ADDRESS >> 8
 	ldrb	r0,[r0]
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	void port_output(uint8_t);
+	void outport_write(uint8_t);
 */
-port_output:
+outport_write:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0,[r1]

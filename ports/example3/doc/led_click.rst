@@ -6,7 +6,7 @@ LED com botão
 Neste exemplo mostra-se como controlar o estado de um LED
 -- aceso ou agado -- através de um botão de pressão.
 Cada pressão no botão inverte o estado do LED:
-se estava apagado, acende; se estava aceso, apaga.
+se está apagado, acende; se está aceso, apaga.
 
 É utilizando o mesmo *hardware* do exemplo da :numref:`Portos_exemplo2`.
 
@@ -29,7 +29,7 @@ e em seguida atualiza-se o porto de saída (linha 9).
    :lines: 27-40
 
 Na tradução do programa para linguagem *assembly* (:numref:`led_click_asm`),
-as funções ``port_input`` e ``port_output`` são implementadas como rotinas.
+as funções ``inport_read`` e ``outport_write`` são implementadas como rotinas.
 Esta solução permite um melhor arranjo do código, isolando nas rotinas os detalhes
 relacionados com o *hardware*.
 Ao nível do programa principal, o acesso aos portos é realizado por invocação
@@ -43,8 +43,8 @@ e cumprindo o protocolo convencionado de passagem de argumentos e retorno de val
    :name: led_click_asm
    :lines: 43-64
 
-A função ``port_input`` devolve os dados que se apresentam à entrada do porto.
-O endereço do porto, representado pelo símbolo ``PORT_ADDRESS``,
+A função ``inport_read`` devolve os dados que se apresentam à entrada do porto.
+O endereço do porto, representado pelo símbolo ``INPORT_ADDRESS``,
 é carregado em R0 (linhas 4 e 5); a instrução ``ldrb r0, [r0, 1]``
 transfere o valor presente nesse momento à entrada do porto para R0,
 por ser o registo convencionado para o retorno de valores de funções.
@@ -52,11 +52,11 @@ por ser o registo convencionado para o retorno de valores de funções.
 .. literalinclude:: ../code/led_click.s
    :language: asm
    :linenos:
-   :caption: Função ``port_input``
-   :name: port_input_func
+   :caption: Função ``inport_read``
+   :name: inport_read_func
    :lines: 67, 70-75
 
-A função ``port_output`` escreve os dados que recebe em parâmetro
+A função ``outport_write`` escreve os dados que recebe em parâmetro
 no porto de saída. O endereço do porto, é carregado em R1 (linhas 4 e 5),
 porque R0 contém o argumento da função; a instrução ``strb r0, [r1, 1]``
 transfere a parte baixa de R0 para o registo do porto.
@@ -64,9 +64,9 @@ transfere a parte baixa de R0 para o registo do porto.
 .. literalinclude:: ../code/led_click.s
    :language: asm
    :linenos:
-   :caption: Função ``port_output``
-   :name: port_output_func_impar
-   :lines: 78, 80-85
+   :caption: Função ``outport_write``
+   :name: outport_write_func_impar
+   :lines: 78, 82-85
 
 Relativamente à solução usada no exemplo da :numref:`Portos_exemplo2`,
 em que a tradução para *assembly* destas funções foi por subtituição direta
@@ -91,7 +91,7 @@ em que a tradução para *assembly* destas funções foi por subtituição diret
    de modo a realizar a deteção das mudanças de estado do botão de pressão
    sem usar o método dos ciclos de espera das
    linhas 5 e 6 e linhas 9 e 10, da :numref:`led_click`.
+   Sugestão: em cada iteração testar o estado anterior e o estado atual do botão.
 
 2. Transformar o programa anterior num programa que conte e apresente no porto de saída,
    a contagem do número de vezes que o botão de pressão foi premido.
-

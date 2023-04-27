@@ -10,7 +10,7 @@ e como utilizar um *display* de sete segmentos.
 No *display* apresenta-se um contador que evolui uma unidade por cada pressão no botão **Clock**.
 O *display* é atualizado sempre que o valor do contador é alterado.
 A pressão do botão **Up/Down** inverte o sentido de contagem -- crescente ou decrescente.
-O sentido de contagem é indicado no LED: aceso -- contagem crescente;
+O sentido da contagem é indicado no LED: aceso -- contagem crescente;
 apagado -- contagem decrescente.
 
 .. figure:: p16_7segment.png
@@ -26,14 +26,14 @@ A variável ``counter`` representa o contador, que evolui na gama de valores 0 a
 
 A variável `direction_state` representa o sentido de contagem do contador.
 O seu valor é invertido em cada pressão do botão Up/Down
-e é testado em cada pressão do botão Clock, para evoluir o contador no sentido correto.
+e é testado em cada pressão do botão Clock, para avançar o contador no sentido correto.
 
 A variável `port_prev` representa o valor lido anteriormente do porto de entrada.
 Ao ser comparada com o valor atual do porto de entrada permite
 detetar alterações no estado dos botões.
 
 Como um botão premido impõe o valor lógico zero à entrada do porto,
-o valor retornado por `port_input` é imediatamente invertido
+o valor retornado por `inport_read` é imediatamente invertido
 para que o código se escreva em lógica positiva, a assim facilitar a compreenção
 (linhas 12 e 18).
 
@@ -67,46 +67,44 @@ e se o estado atual é diferente de zero. ::
 
 A necessidade de manipular o *display*, ligado nos 7 *bits* de menor peso do porto,
 e de manipular o LED, ligado no *bit* de maior peso do porto,
-em contextos diferentes, levou é criação da função ``port_write``.
+em contextos diferentes, levou é criação da função ``outport_write_bits``.
 
-A utilização simples da função ``port_output`` definida na :numref:`port_output_func_par`
+A utilização simples da função ``outport_write`` como definida na :numref:`outport_write_func_impar`
 não é viável pois afeta todos os *bits* do porto -- ao atualizar o *display* modifica
 o LED e vice-versa.
 
-A função `'port_write`` -- :numref:`port_write` permite alterar apenas os *bits*
+A função `'outport_write_bits`` -- :numref:`outport_write_bits` permite alterar apenas os *bits*
 de algumas posições, mantendo os restantes com o mesmo valor.
 Os *bits* que vão ser afetados são definidos através do parâmetro ``mask``
 que contém o valor um nessas posições e zero nas restantes. Por exemplo,
 para especificar as posições afetas ao *display* a máscara é 0111 1111.
 
 A manutenção dos restantes *bits* é baseada na memorização do valor anteriormente
-escrito no porto, mantido na variável local ``image`` (linha 2) da :numref:`port_write`.
+escrito no porto, mantido na variável ``outport_image`` (linha 1) da :numref:`outport_write_bits`.
 
 .. literalinclude:: ../code/7segment.s
    :language: c
    :linenos:
-   :caption: Função ``port_write``
-   :name: port_write
-   :lines: 174-179
-
-Em linguagem C o atributo ``static`` na definição de uma variável local significa
-que essa variável deve ser implementada sempre no mesmo local da memória de dados.
-Não pode ser implementada em registo ou em *stack*. Assim em todas as execuções
-a função irá encontrar nessa variável o valor lá deixado na execução anterior.
+   :caption: Função ``outport_write_bits``
+   :name: outport_write_bits
+   :lines: 174-178
 
 .. literalinclude:: ../code/7segment.s
    :language: asm
    :linenos:
-   :caption: Função ``port_write`` em *assembly*
+   :caption: Função ``outport_write_bits`` em *assembly*
    :name: port_write_asm
-   :lines: 181-200
+   :lines: 185-195
 
+A função  ``outport_write`` além de escrever o valor no porto de saída,
+também atualiza a variável ``outport_image``.
+ 
 .. literalinclude:: ../code/7segment.s
    :language: asm
    :linenos:
-   :caption: Função ``port_output``
-   :name: port_output_func_par
-   :lines: 214, 216, 205-206, 217-221
+   :caption: Função ``outport_write``
+   :name: outport_write_func_par
+   :lines: 209, 212-222
 
 **Código fonte:** :download:`7segment.s<../code/7segment.s>`
 

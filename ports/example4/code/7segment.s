@@ -44,16 +44,16 @@ const uint8_t bin7seg[] =
 void main() {
 	uint16_t counter;
 	uint8_t direction_state = 0;
-	uint8_t port_prev = ~port_input();
+	uint8_t port_prev = ~inport_read();
 
-	port_write(direction_state ? LED_MASK : 0, LED_MASK);
-	port_write(tab7seg[counter], 7SEG_MASK);
+	outport_write_bits(LED_MASK, direction_state ? LED_MASK : 0);
+	outport_write_bits(DISPLAY_MASK, tab7seg[counter]);
 
 	while (1) {
-		uint8_t port_actual = ~port_input();
+		uint8_t port_actual = ~inport_read();
 		if ((port_prev & BUTTON_UPDOWN_MASK) == 0 && (port_actual & BUTTON_UPDOWN_MASK) != 0) {
 			direction_state = ~direction_state;
-			port_write(direction_state ? LED_MASK : 0, LED_MASK);
+			outport_write_bits(LED_MASK, direction_state ? LED_MASK : 0);
 		}
 		if ((port_prev & BUTTON_CLOCK_MASK) == 0 && (port_actual & BUTTON_CLOCK_MASK) != 0) {
 			if (direction_state)
@@ -66,7 +66,7 @@ void main() {
 					counter = 9;
 				else
 					counter -= 1;
-			port_write(tab7seg[counter], 7SEG_MASK);
+			outport_write_bits(DISPLAY_MASK, tab7seg[counter]);
 		}
 		port_prev = port_actual;
 	}
@@ -91,25 +91,25 @@ main:
 	push	r7
 	mov	r4, 0		; uint8_t counter = 0;
 	mov	r5, 0 		; uint8_t direction_state = 0;
-	bl	port_input	; uint8_t port_prev = ~port_input();
+	bl	inport_read	; uint8_t port_prev = ~inport_read();
 	mvn	r6, r0
 
-	add	r5, r5, 0	; port_write(direction_state ? LED_MASK : 0, LED_MASK);
+	add	r5, r5, 0	; outport_write_bits(LED_MASK, direction_state ? LED_MASK : 0);
 	bzs	main_cond1
-	mov	r0, LED_MASK
+	mov	r1, LED_MASK
 	b	main_cond1_end
 main_cond1:
-	mov	r0, 0
+	mov	r1, 0
 main_cond1_end:
-	mov	r1, LED_MASK
-	bl	port_write
+	mov	r0, LED_MASK
+	bl	outport_write_bits
 
-	ldr	r0, addressof_bin7seg	; port_write(tab7seg[counter], 7SEG_MASK);
-	ldrb	r0, [r0, r4]
-	mov	r1, DISPLAY_MASK
-	bl	port_write
+	ldr	r0, addressof_bin7seg	; outport_write_bits(DISPLAY_MASK, tab7seg[counter]);
+	ldrb	r1, [r0, r4]
+	mov	r0, DISPLAY_MASK
+	bl	outport_write_bits
 main_while:
-	bl	port_input		; uint8_t port_actual = ~port_input();
+	bl	inport_read		; uint8_t port_actual = ~inport_read();
 	mvn	r7, r0
 	mov	r1, BUTTON_UPDOWN_MASK	; if ((port_prev & BUTTON_UPDOWN_MASK) == 0
 	and	r0, r6, r1
@@ -118,14 +118,14 @@ main_while:
 	bzs	main_if1_end		; && (port_actual & BUTTON_UPDOWN_MASK) != 0) {
 	mvn	r5, r5			; direction_state = ~direction_state;
 	add	r5, r5, 0
-	bzs	main_cond2		; port_write(direction_state ? LED_MASK : 0, LED_MASK);
-	mov	r0, LED_MASK
+	bzs	main_cond2		; outport_write_bits(LED_MASK, direction_state ? LED_MASK : 0);
+	mov	r1, LED_MASK
 	b	main_cond2_end
 main_cond2:
-	mov	r0, 0
+	mov	r1, 0
 main_cond2_end:
-	mov	r1, LED_MASK
-	bl	port_write
+	mov	r0, LED_MASK
+	bl	outport_write_bits
 main_if1_end:
 
 	mov	r1, BUTTON_CLOCK_MASK	; if ((port_prev & BUTTON_CLOCK_MASK) == 0
@@ -154,11 +154,11 @@ main_if5_else:
 	sub	r4, r4, 1		; counter -= 1;
 main_if5_end:
 main_if3_end:
-	ldr	r0, addressof_bin7seg	; port_write(tab7seg[counter], 7SEG_MASK);
-	ldrb	r0, [r0, r4]
-;	mov	r0, r4
-	mov	r1, DISPLAY_MASK
-	bl	port_write
+	ldr	r0, addressof_bin7seg	; outport_write_bits(DISPLAY_MASK, tab7seg[counter]);
+	ldrb	r1, [r0, r4]
+;	mov	r1, r4
+	mov	r0, DISPLAY_MASK
+	bl	outport_write_bits
 main_if2_end:
 	mov	r6, r7			; port_prev = port_actual;
 	b	main_while
@@ -171,11 +171,10 @@ addressof_bin7seg:
 	.word	bin7seg
 
 /*------------------------------------------------------------------------------
-void port_write(uint8_t value, uint8_t mask) {
-	static uint8_t port_image;
-	port_image &= ~mask;
-	port_image |= value & mask;
-	port_output(port_image);
+static uint8_t outport_image;
+
+void outport_write_bits(uint8_t mask, uint8_t value) {
+	outport_write(outport_image & ~mask | value & mask);
 }
 */
 	.data
@@ -183,40 +182,41 @@ image:
 	.byte	0
 
 	.text
-port_write:
+outport_write_bits:
 	push	lr
-	ldr	r2, addressof_image
+	ldr	r2, addressof_outport_image
 	ldrb	r3, [r2]
-	mvn	r1, r1
-	and	r3, r3, r1
-	mvn	r1, r1
-	and	r0, r0, r1
-	orr	r0, r3, r0
-	strb	r0, [r2]
-	bl	port_output
+	mvn	r0, r0
+	and	r3, r3, r0
+	mvn	r0, r0
+	and	r1, r1, r0
+	orr	r0, r3, r1
+	bl	outport_write
 	pop	pc
 
-addressof_image:
-	.word	image
-
 /*------------------------------------------------------------------------------
-	;uint8_t port_input();
+	;uint8_t inport_read();
 */
-	.equ	PORT_ADDRESS, 0xcc00
+	.equ	INPORT_ADDRESS, 0xcc00
 
-port_input:
-	mov	r0, PORT_ADDRESS & 0xff
-	movt	r0, PORT_ADDRESS >> 8
+inport_read:
+	mov	r0, INPORT_ADDRESS & 0xff
+	movt	r0, INPORT_ADDRESS >> 8
 	ldrb	r0,[r0, 0]
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	;void port_output(uint8_t);
+	;void outport_write(uint8_t);
 */
+	.equ	OUTPORT_ADDRESS, 0xcc00
 
-port_output:
-	mov	r1, PORT_ADDRESS & 0xff
-	movt	r1, PORT_ADDRESS >> 8
-	strb	r0,[r1, 0]
+outport_write:
+	mov	r1, OUTPORT_ADDRESS & 0xff
+	movt	r1, OUTPORT_ADDRESS >> 8
+	strb	r0, [r1, 0]
+	ldr	r1, addressof_outport_image
+	strb	r0, [r1, 0]
 	mov	pc, lr
 
+addressof_outport_image:
+	.word	image

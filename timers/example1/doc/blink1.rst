@@ -33,12 +33,19 @@ Na implementação disponível do processador P16, as instruções ``ldr`` e ``s
 demoram seis periodos de relógio a executar e as restantes demoram três.
 
 O número de ciclos de relógio gastos na execução desta função é
-**3 + 3 + (3 + 3) * time + 3**.
+**3 + 3 + (3 + 3) * n + 3**.
 A parcela **3 + 3** inicial é devida às instruções ``sub r0, r0, 0`` e ``beq delay_exit``
 que executam apenas uma vez;
-a parcela **(3 + 3) * time** é devida às instruções ``sub r0, r0, 1`` e ``bzc delay_while``
-que executam ``time`` vezes;
+a parcela **(3 + 3) * n** é devida às instruções ``sub r0, r0, 1`` e ``bzc delay_while``
+que executam **n** vezes;
 a parcela **+ 3** final é devida à instrução ``mov pc, lr``.
+
+Admitindo que a parcela **(3 + 3) * n** é muito superior às restantes parcelas, 
+a duração de ``delay`` é aproximadamente **6 * n**.
+Para uma frequência de trabalho do processador de 100 kHz,
+a duração de ``delay`` é grosso modo **n / 16** milisegundos.
+Se se pretender fazer uma temporização de *time* milisegundos
+deve-se passar como argumento da rotina ``delay`` 16 * *time*.
 
 Este método de realizar temporização,
 com base no tempo de execução das instruções, não é generalizável.

@@ -22,12 +22,12 @@ Tópicos tratados na :numref:`portos_exemplo2`:
    - acesso individualizado a *bits* dos portos.
 
 Tópicos tratados na :numref:`portos_exemplo3`:
-   - definição de API de acesso aos portos: `port_input`; `port_output`;
+   - definição de API de acesso aos portos: `inport_read`; `outport_write`;
    - deteção de transição num sinal de entrada.
 
 Tópicos tratados na :numref:`portos_exemplo4`:
    - deteção de transição em mais que um sinal de entrada;
-   - acesso a *bits* do mesmo porto de saída em contextos diferentes -- função `port_write`.
+   - acesso a *bits* do mesmo porto de saída em contextos diferentes -- função `outport_write_bits`.
 
 .. toctree::
    :maxdepth: 2

@@ -16,14 +16,14 @@ O incremento dessa variável é realizado numa rotina de atendimento de interrup
 -- ISR (*Interrupt Service Rotine*) -- que é invocada por acção de um sinal de relógio,
 aplicado à entrada de interrupção do processador.
 
-Para teste é utilizado um programa que faz piscar um LED ligado
-num *bit* do porto de saída, a um dado ritmo.
+Para teste, utiliza-se um programa que faz piscar um LED ligado
+num *bit* do porto de saída.
 
 Se se aplicasse directamente o sinal de relógio à entrada de interrupção (:numref:`p16_osc_irq`),
-o pedido de interrupção estaria activo enquanto o sinal estivesse a zero
--- a entrada de interrupção é ativa a zero.
-Para um sinal de 100 Hz (valor comumente usado), com *dutty cycle* de 50 %,
-essa duração corresponde a 5 ms. Durante este período a ISR seria executada várias vezes,
+o pedido de interrupção estaria activo enquanto o sinal estivesse a **0**
+-- a entrada de interrupção é ativa a **0**.
+Para um sinal de 100 Hz (valor comummente usado), com *dutty cycle* de 50 %,
+essa duração é de 5 ms. Durante este período a ISR seria executada várias vezes,
 quando o que se pretende é executá-la apenas uma vez, em cada ciclo do relógio.
 
 .. figure:: p16_osc_irq.png
@@ -49,9 +49,9 @@ Como realizar a eliminação do pedido de interrupção (acção CLR sobre o fli
 
 Neste exemplo tira-se partido dos sinais de *status* S0 e S1 disponíveis no P16
 (:numref:`p16_osc_flip_clr_s0s1_irq`).
-Este sinais são ambos colocados a um no atendimento de uma interrupção.
-Este método tem a vantagem de realizar automaticamente a acção CLR do *flip-flop*.
-Não sendo necessário programar nenhuma ação explícita.
+Este sinais são ambos colocados a **1** no atendimento de uma interrupção.
+Este método tem a vantagem de realizar automaticamente a acção CLR do *flip-flop*,
+não sendo necessário programar uma ação explícita.
 
 .. figure:: p16_osc_flip_clr_s0s1_irq.png
    :name: p16_osc_flip_clr_s0s1_irq
@@ -61,7 +61,7 @@ Não sendo necessário programar nenhuma ação explícita.
 
 Na :numref:`system_clock` apresenta-se uma solução de programação em linguagem C.
 O relógio de sistema é concretizado na variável ``system_clock``.
-Esta variável é incrementada na ISR em cada invocação dessa função (linha 19).
+Esta variável é incrementada na ISR em cada invocação dessa função (linha 20).
 No programa principal, é utilizada como referência temporal
 -- como o contador de um *timer*.
 Na linha 12 é tomado o seu valor, na variável ``initial``, e durante o *while*,
@@ -70,7 +70,7 @@ e o valor em ``initial``. Nas primeiras iterações não haverá diferença,
 mas à medida que o tempo passa, e as interrupções se sucedem,
 o valor de ``system_clock`` aumenta e a diferença também aumenta,
 até atingir o valor ``HALF_PERIOD``.
-A função auxiliar ``interrupt_enable`` coloca a flag I a um,
+A função auxiliar ``interrupt_enable`` coloca a flag I a **1**,
 para tornar o processador receptivo a interrupções.
 
 .. literalinclude:: ../code/system_clock.s
@@ -127,10 +127,10 @@ O acesso às flags do processador, entre elas a *flag* I, é realizado pelas ins
    :name: interrupt_enable
    :lines: 60-61, 69-70
 
-A instrução ``msr cpsr, r0`` coloca a *flags* **I** a um,
+A instrução ``msr cpsr, r0`` coloca a *flag* I a **1**,
 permitindo ao processador aceitar interrupções.
-O símbolo IFLAG_MASK é equivalente a um valor com o *bit* da posição quatro a um,
-que corresponde à posição da *flag* **I** nos registos CPSR e SPSR.
+O símbolo IFLAG_MASK é equivalente a um valor com **1** no *bit* da posição quatro,
+que corresponde à posição da *flag* I nos registos CPSR e SPSR.
 
 
 O atendimento de uma interrupção dá-se depois do processamento de uma qualquer instrução
