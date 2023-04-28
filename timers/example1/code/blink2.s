@@ -1,26 +1,26 @@
-.section .startup
+	.section .startup
 	b	_start
 	b	.
+
 _start:
-	ldr	sp, addressof_stack_end
-	ldr	r0, addressof_main
-	mov	r1, pc
-	add	lr, r1, 4
-	mov	pc, r0
+	ldr	sp, addressof_stack_top
+	mov	r0, pc
+	add	lr, r0, #4
+	ldr	pc, addressof_main
 	b	.
-addressof_stack_end:
-	.word	stack_end
+
+addressof_stack_top:
+	.word	stack_top
+
 addressof_main:
 	.word	main
 
 	.text
 
-	.data
-
 	.section .stack
 	.equ	STACK_SIZE, 1024
 	.space	STACK_SIZE
-stack_end:
+stack_top:
 
 /*==============================================================================
 */
@@ -41,16 +41,16 @@ void main() {
 	.text
 main:
 while:
-	mov	r0, LED_MASK
+	mov	r0, #LED_MASK
 	bl	outport_write
-	mov	r0, HALF_PERIOD & 0xff
-	movt	r0, HALF_PERIOD >> 8
+	mov	r0, #HALF_PERIOD & 0xff
+	movt	r0, #HALF_PERIOD >> 8
 	bl 	delay
 
-	mov	r0, 0
+	mov	r0, #0
 	bl	outport_write
-	mov	r0, HALF_PERIOD & 0xff
-	movt	r0, HALF_PERIOD >> 8
+	mov	r0, #HALF_PERIOD & 0xff
+	movt	r0, #HALF_PERIOD >> 8
 	bl 	delay
 
 	b	while
@@ -81,21 +81,21 @@ delay_while:
 /*------------------------------------------------------------------------------
 	void outport_write(uint8_t);
 */
-	.equ	PORT_ADDRESS, 0xff00
+	.equ	OUTPORT_ADDRESS, 0xffc0
 
 outport_write:
-	mov	r1, PORT_ADDRESS & 0xff
-	movt	r1, PORT_ADDRESS >> 8
+	mov	r1, #OUTPORT_ADDRESS & 0xff
+	movt	r1, #OUTPORT_ADDRESS >> 8
 	strb	r0, [r1]
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
 	uint8_t timer_read();
 */
-	.equ	TIMER_ADDRESS, 0xff80
+	.equ	TIMER_ADDRESS, 0xff40
 
 timer_read:
-	mov	r1, TIMER_ADDRESS & 0xff
-	movt	r1, TIMER_ADDRESS >> 8
+	mov	r1, #TIMER_ADDRESS & 0xff
+	movt	r1, #TIMER_ADDRESS >> 8
 	ldr	r0, [r1]
 	mov	pc, lr

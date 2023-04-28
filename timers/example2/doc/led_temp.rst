@@ -62,7 +62,7 @@ Este valor representa o tempo que passou desde o momento inicial até agora.
 
 **Código completo:** :download:`led_temp.s<../code/led_temp.s>`
 
-**Logisim:**
+**Teste em Logisim:**
    - Cicuito: :download:`sdp16_timer_counter.circ<../../example1/logisim/sdp16_timer_counter.circ>`
 
    - *Screenshot*: :download:`Screenshot_Logisim_counter<../../example1/logisim/Screenshot_Logisim_counter.png>`
@@ -71,7 +71,7 @@ Este valor representa o tempo que passou desde o momento inicial até agora.
 
    .. code-block:: console
 
-      pas led_temp.s -f logisim -l 2
+      p16as led_temp.s -f logisim -l 2
 
 **Exercícios:**
 

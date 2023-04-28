@@ -43,7 +43,7 @@ a parcela **+ 3** final é devida à instrução ``mov pc, lr``.
 Admitindo que a parcela **(3 + 3) * n** é muito superior às restantes parcelas, 
 a duração de ``delay`` é aproximadamente **6 * n**.
 Para uma frequência de trabalho do processador de 100 kHz,
-a duração de ``delay`` é grosso modo **n / 16** milisegundos.
+a duração de ``delay`` é aproximadamente **n / 16** milisegundos.
 Se se pretender fazer uma temporização de *time* milisegundos
 deve-se passar como argumento da rotina ``delay`` 16 * *time*.
 
@@ -56,14 +56,28 @@ depende também do código binário gerado pelo compilador.
 
 **Código completo:** :download:`blink1.s<../code/blink1.s>`
 
-**Logisim:**
+**Teste em Logisim:**
    - Cicuito: :download:`sdp16_timer_soft.circ<../logisim/sdp16_timer_soft.circ>`
    - *Screenshot*: :download:`Screenshot_Logisim_soft<../logisim/Screenshot_Logisim_soft.png>`
    - Compilação:
 
    .. code-block:: console
 
-      pas blink1.s -f logisim -l 2
+      p16as blink1.s -f logisim -l 2
+
+**Teste no P16 Simulator:**
+   - Ficheiro de configuração do p16sim: :download:`p16sim_config_timers_ex1.txt<../p16sim/p16sim_config_timers_ex1.txt>`
+   - Compilação do programa:
+
+   .. code-block:: console
+
+      p16as blink1.s
+
+   - Invocação do simulador:
+
+   .. code-block:: console
+
+      p16sim -c p16sim_config_timers_ex1.txt
 
 **Exercício:**
 

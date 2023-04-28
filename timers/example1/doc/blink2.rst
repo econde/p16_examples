@@ -80,14 +80,14 @@ A função ``timer_read`` é implementada em *assembly* pelo código da :numref:
 
 **Código completo:** :download:`blink2.s<../code/blink2.s>`
 
-**Logisim:**
+**Teste Logisim:**
    - Cicuito: :download:`sdp16_timer_counter.circ<../logisim/sdp16_timer_counter.circ>`
    - *Screenshot*: :download:`Screenshot_Logisim_counter<../logisim/Screenshot_Logisim_counter.png>`
    - Compilação:
 
    .. code-block:: console
 
-      pas blink2.s -f logisim -l 2
+      p16as blink2.s -f logisim -l 2
 
 **Exercício:**
 

@@ -36,26 +36,26 @@ void main() {
 	uint8_t led_state = 0;
 	uint8_t blink_state = 0;
 	uint16_t initial = timer_read();
-	port_output(LED_MASK & led_state);
+	outport_write(LED_MASK & led_state);
 	while (1) {
-		while ((port_input() & BUTTON_MASK) == 0)
+		while ((inport_read() & BUTTON_MASK) == 0)
 			if (timer_elapsed(initial) >= HALF_PERIOD) {
 				if (blink_state)
 					led_state = ~led_state;
 				else
 					led_state = 0;
-				port_output(LED_MASK & led_state);
+				outport_write(LED_MASK & led_state);
 				initial = timer_read();
 			}
 		blink_state = !blink_state;
 
-		while (port_input_test(BUTTON_MASK) == 1)
+		while (inport_read_test(BUTTON_MASK) == 1)
 			if (timer_elapsed(initial) >= HALF_PERIOD) {
 				if (blink_state)
 					led_state = ~led_state;
 				else
 					led_state = 0;
-				port_output(LED_MASK & led_state);
+				outport_write(LED_MASK & led_state);
 				initial = timer_read();
 			}
 	}
@@ -70,11 +70,11 @@ main:
 	mov	r5, 0		; uint8_t blink_state = 0;
 	bl	timer_read	; uint8_t initial = timer_read();
 	mov	r6, r0
-	mov	r0, r4		; port_output(LED_MASK & led_state);
-	bl	port_output
+	mov	r0, r4		; outport_write(LED_MASK & led_state);
+	bl	outport_write
 while:				; while (1) {
 while1:
-	bl	port_input	; while ((port_input() & BUTTON_MASK) == 0)
+	bl	inport_read	; while ((inport_read() & BUTTON_MASK) == 0)
 	mov	r1, BUTTON_MASK
 	and	r0, r0, r1
 	bzc	while1_end
@@ -91,9 +91,9 @@ while1:
 if11_else:
 	mov	r4, 0		; led_state = 0;
 if11_end:
-	mov	r0, LED_MASK	; port_output(LED_MASK & led_state);
+	mov	r0, LED_MASK	; outport_write(LED_MASK & led_state);
 	and	r0, r0, r4
-	bl	port_output
+	bl	outport_write
 	bl	timer_read	; initial = timer_read();
 	mov	r6, r0
 if1_end:
@@ -101,7 +101,7 @@ while1_end:
 
 	mvn	r5, r5		; blink_state = ~blink_state;
 while2:
-	bl	port_input	; while ((port_input() & BUTTON_MASK) == 0)
+	bl	inport_read	; while ((inport_read() & BUTTON_MASK) == 0)
 	mov	r1, BUTTON_MASK
 	and	r0, r0, r1
 	bzs	while2_end
@@ -118,9 +118,9 @@ while2:
 if21_else:
 	mov	r4, 0		; led_state = 0;
 if21_end:
-	mov	r0, LED_MASK	; port_output(LED_MASK & led_state);
+	mov	r0, LED_MASK	; outport_write(LED_MASK & led_state);
 	and	r0, r0, r4
-	bl	port_output
+	bl	outport_write
 	bl	timer_read	; initial = timer_read();
 	mov	r6, r0
 if2_end:
@@ -149,18 +149,18 @@ timer_elapsed:
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	uint8_t port_input();
+	uint8_t inport_read();
 */
-port_input:
+inport_read:
 	mov	r0, PORT_ADDRESS & 0xff
 	movt	r0, PORT_ADDRESS >> 8
 	ldrb	r0,[r0]
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	void port_output(uint8_t);
+	void outport_write(uint8_t);
 */
-port_output:
+outport_write:
 	mov	r1, PORT_ADDRESS & 0xff
 	movt	r1, PORT_ADDRESS >> 8
 	strb	r0,[r1]

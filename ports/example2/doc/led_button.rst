@@ -28,41 +28,44 @@ então escreve o valor **0** para apagar o LED -- ``outport_write(0)``.
 Os símbolos BUTTON_MASK e LED_MASK representam valores com 0
 em todas as posições, exceto nas posições onde o botão ou o LED estão ligados
 -- linhas 1 e 2 da :numref:`led_button`.
-(Estes valores designam-se genericamente por máscaras.)
+Estes valores designam-se genericamente por máscaras.
 Por exemplo, o símbolo ``BUTTON_MASK``,
 definido pela expressão (1 << 2), é equivalente a ``0000 0100``,
-o **1** está na mesma posição em que o botão está ligado no porto de entrada.
+o **1** está na mesma posição em que o botão está ligado no porto de entrada
+-- terceira posição.
 
 O teste do estado do botão recorre à utilização da operação *and bit-a-bit*
--- ``& BUTTON_MASK``. Os *bits* a 0 na máscara (elemento absorvente da operação *and*)
+(``& BUTTON_MASK``). Os *bits* a 0 na máscara (elemento absorvente da operação *and*)
 garantem que o resultado é 0 nessas posições.
 Nas outras posições o resultado depende do valor em teste,
 já que nessas posições a máscara tem 1 (elemento neutro da operação *and*).
 Se o resultado da operação *and bit-a-bit* for zero significa que o *bit* em teste é 0.
-Se este *bit* for 1 o resultado será diferente de zero.
+Se o resultado for diferente de zero, significa que o *bit* em teste é 1.
 
 A utilização destes símbolos facilita a interpretação do programa
 e a adaptação do mesmo a situações diferentes. Se por exemplo,
 a ligação do botão for mudada para outra posição,
-a adaptação do programa consiste apenas em alterar a definição de ``BUTTON_MASK``.
+a adaptação do programa consiste apenas em definir o valor de ``BUTTON_MASK``.
 
 .. literalinclude:: ../code/led_button.s
    :language: c
    :linenos:
    :caption: Programa principal em linguagem C
    :name: led_button
-   :lines: 22-32
+   :lines: 28-38
 
 Na tradução do programa para linguagem *assembly* (:numref:`led_button_asm`),
-as funções ``inport_read`` e ``outport_write`` são traduzidas pelas sequências de instruções ::
+as funções ``inport_read`` e ``outport_write`` são traduzidas pelas sequências de instruções
 
-   ldr  r1, addressof_port
-   ldrb r0, [r1, 1]
+.. literalinclude:: ../code/led_button.s
+   :language: asm
+   :lines: 49-50
 
-e ::
+e
 
-   ldr  r1, addressof_port
-   strb r0, [r1, 1]
+.. literalinclude:: ../code/led_button.s
+   :language: asm
+   :lines: 59-60
 
 respectivamente.
 
@@ -78,12 +81,12 @@ e a uma distância inferior a 128 posições de memória (linhas 24 a 28).
    :linenos:
    :caption: Programa principal em linguagem *assembly*
    :name: led_button_asm
-   :lines: 34-61
+   :lines: 40-67
 
 O acesso aos portos de 8 *bits* na parte alta do barramento de dados (D8 a D15)
 utiliza endereço ímpar.
 Para ficar explícito na análise do programa, que se trata de um acesso a endereço ímpar,
-as instruções ``ldrb r0, [r1, 1]`` (linha 11) e ``strb r0, [r1, 1]`` (linha 21)
+as instruções ``ldrb r0, [r1, #1]`` (linha 11) e ``strb r0, [r1, #1]`` (linha 21)
 recebem na primeira componente de formação do endereço (registo R1) um valor par,
 e na segunda componente o valor 1 -- resultando um endereço ímpar.
 
@@ -106,14 +109,28 @@ com o valor lógico previamente colocado em R0.
 
 **Código fonte:** :download:`led_button.s<../code/led_button.s>`
 
-**Logisim:**
+**Teste em Logisim:**
    - Cicuito: :download:`p16_led_button.circ<../logisim/p16_led_button.circ>`
    - *Screenshot*: :download:`Screenshot_Logisim<../logisim/Screenshot_Logisim.png>`
    - Compilação:
 
    .. code-block:: console
 
-      pas led_button.s -f logisim -l 2
+      p16as led_button.s -f logisim -l 2
+
+**Teste no P16 Simulator:**
+   - Ficheiro de configuração do p16sim: :download:`p16sim_config_ports_ex2.txt<../p16sim/p16sim_config_ports_ex2.txt>`
+   - Compilação do programa:
+
+   .. code-block:: console
+
+      p16as led_button.s
+
+   - Invocação do simulador:
+
+   .. code-block:: console
+
+      p16sim -c p16sim_config_ports_ex2.txt
 
 **Exercícios:**
 

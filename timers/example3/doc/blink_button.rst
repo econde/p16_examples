@@ -71,12 +71,12 @@ e à atualização do LED (linha 5).
 
 **Código completo:** :download:`blink_button.s<../code/blink_button.s>`
 
-**Logisim:**
+**Teste em Logisim:**
    - Cicuito: :download:`sdp16_timer_counter.circ<../../example1/logisim/sdp16_timer_counter.circ>`
 
    - *Screenshot*: :download:`Screenshot_Logisim_counter<../../example1/logisim/Screenshot_Logisim_counter.png>`
 
-   - Compilação: ``pas blink_button.s -f logisim -l 2``
+   - Compilação do programa: ``p16as blink_button.s -f logisim -l 2``
 
 **Exercícios:**
 

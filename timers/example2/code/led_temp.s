@@ -1,26 +1,26 @@
-.section .startup
+	.section .startup
 	b	_start
 	b	.
+
 _start:
-	ldr	sp, addressof_stack_end
-	ldr	r0, addressof_main
-	mov	r1, pc
-	add	lr, r1, 4
-	mov	pc, r0
+	ldr	sp, addressof_stack_top
+	mov	r0, pc
+	add	lr, r0, #4
+	ldr	pc, addressof_main
 	b	.
-addressof_stack_end:
-	.word	stack_end
+
+addressof_stack_top:
+	.word	stack_top
+
 addressof_main:
 	.word	main
 
 	.text
 
-	.data
-
 	.section .stack
 	.equ	STACK_SIZE, 1024
 	.space	STACK_SIZE
-stack_end:
+stack_top:
 
 /*==============================================================================
 
@@ -51,29 +51,29 @@ int main() {
 	.text
 main:
 while:
-	mov	r0, 0
+	mov	r0, #0
 	bl	outport_write	; outport_write(0)
 while1:				; while ((inport_read() & BUTTON_MASK) == 0)
 	bl	inport_read
-	mov	r2, BUTTON_MASK
+	mov	r2, #BUTTON_MASK
 	and	r0, r0, r2
 	bzs	while1
 while2:				; while ((inport_read() & BUTTON_MASK) != 0)
 	bl	inport_read
-	mov	r2, BUTTON_MASK
+	mov	r2, #BUTTON_MASK
 	and	r0, r0, r2
 	bzc	while2
 
-	mov	r0, LED_MASK
+	mov	r0, #LED_MASK
 	bl	outport_write	; outport_write(LED_MASK)
 
-	mov	r4, LED_TIME && 0xff	; r4 - LED_TIME
-	movt	r4, LED_TIME >> 8
+	mov	r4, #LED_TIME && 0xff	; r4 - LED_TIME
+	movt	r4, #LED_TIME >> 8
 	bl	timer_read
 	mov	r5, r0		; r5 - time_initial
 while3:
 	bl	inport_read	; while ((inport_read() & BUTTON_MASK) == 0
-	mov	r2, BUTTON_MASK
+	mov	r2, #BUTTON_MASK
 	and	r0, r0, r2
 	bzc	while3_end
 
@@ -84,7 +84,7 @@ while3:
 while3_end:
 while4:
 	bl	inport_read	; while ((inport_read() & BUTTON_MASK) != 0
-	mov	r2, BUTTON_MASK
+	mov	r2, #BUTTON_MASK
 	and	r0, r0, r2
 	bzs	while4_end
 
@@ -113,30 +113,32 @@ timer_elapsed:
 /*------------------------------------------------------------------------------
 	uint8_t timer_read();
 */
-	.equ	TIMER_ADDRESS, 0xff80
+	.equ	TIMER_ADDRESS, 0xff40
 
 timer_read:
-	mov	r0, TIMER_ADDRESS & 0xff
-	movt	r0, TIMER_ADDRESS >> 8
+	mov	r0, #TIMER_ADDRESS & 0xff
+	movt	r0, #TIMER_ADDRESS >> 8
 	ldr	r0, [r0]
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
 	uint8_t inport_read();
 */
-	.equ	PORT_ADDRESS, 0xff00
+	.equ	INPORT_ADDRESS, 0xff80
 
 inport_read:
-	mov	r0, PORT_ADDRESS & 0xff
-	movt	r0, PORT_ADDRESS >> 8
+	mov	r0, #INPORT_ADDRESS & 0xff
+	movt	r0, #INPORT_ADDRESS >> 8
 	ldrb	r0,[r0]
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
 	void outport_write(uint8_t);
 */
+	.equ	OUTPORT_ADDRESS, 0xffc0
+
 outport_write:
-	mov	r1, PORT_ADDRESS & 0xff
-	movt	r1, PORT_ADDRESS >> 8
+	mov	r1, #OUTPORT_ADDRESS & 0xff
+	movt	r1, #OUTPORT_ADDRESS >> 8
 	strb	r0,[r1]
 	mov	pc, lr
