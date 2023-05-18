@@ -20,8 +20,8 @@ realizando em cada ciclo a seguinte sequência de ações: acender o LED
 apagar o LED (linha 9); repetir a temporização (linha 10).
 
 A temporização consiste em impedir que o processamento prossiga
-durante um certo periodo de tempo.
-Assim, o LED vai permanecer acesso ou apagado durante a temporização que se segue.
+durante um certo tempo.
+Assim, o LED vai permanecer acesso ou apagado durante o periodo que se segue.
 
 .. literalinclude:: ../code/blink1.s
    :language: c
