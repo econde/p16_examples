@@ -4,7 +4,7 @@ Pisca-pisca com botão
 *********************
 
 Neste exemplo realiza-se o controlo de intermitência de um LED com um botão de pressão,
-com uma aprência igual à do exemplo da :numref:`Timers_exemplo3`,
+com uma aparência igual à do exemplo da :numref:`Timers_exemplo3`,
 mas utilizando o mecanismo de interrupções do P16 para realizar a intermitência do LED.
 
 A solução proposta consiste em utilizar um sinal de relógio para gerar interrupção
@@ -18,13 +18,14 @@ o sinal de relógio deve ter uma frequência de 2Hz.
 .. figure:: p16_osc_flip_clr_irq.png
    :name: p16_osc_flip_clr_irq
    :align: center
+   :scale: 25%
 
-   Eliminação do pedido de interrupção utilizando a interface de memória
+   Geração de pedido de interrupção periódico
 
 A ação de eliminação do pedido de interrupção utiliza a interface de acesso à memória.
-O sinal CLR do *flip-flop* é ativado num acesso de leitura ao endereço 0xFF40
-(:numref:`p16_osc_flip_clr_irq`). (No SDP16, endereçar a 0xFF40 ativa o sinal nCS_EX0.)
-Esta ação deve ser realizada no interior da ISR.
+O sinal CLR do *flip-flop* é ativado num acesso de leitura ao endereço correspondente
+ao sinal nCS_EX0 (:numref:`p16_osc_flip_clr_irq`).
+Esta operação deve ser realizada no interior da ISR.
 
 Na :numref:`blink_intr` apresenta-se uma solução de programação em linguagem C.
 O estado do programa é baseado em duas variáveis:
@@ -43,7 +44,7 @@ A função auxiliar ``irequest_clear`` elimina o pedido de interrupção no *fli
    :linenos:
    :caption: Controlo de intermitência de um LED
    :name: blink_intr
-   :lines: 30-48, 101, 91-98
+   :lines: 31-49, 101, 92-99
 
 Programação em Assembly
 #######################
@@ -64,7 +65,7 @@ contêm dados do programa interrompido. A forma de garantir que não são altera
 é salva-los antes de invocar outras funções.
 
 Os registos a partir de R4 também contêm dados do programa interrompido.
-No entanto só é necessário proceder a ações de preservação se forem utilizados na própria ISR.
+No entanto só é necessário proceder a ações de salvaguarda se forem utilizados na própria ISR.
 No que respeita a invocação de outras funções, não é necessário fazer nada.
 Segundo o protocolo, elas próprias se encarregarão de preservar estes registos.
 
@@ -77,11 +78,11 @@ interrompido.
    :linenos:
    :caption: *Interrupt Service Rotine*
    :name: isr
-   :lines: 100-134
+   :lines: 101-135
 
 A operação de eliminação do pedido de interrupção, representada pela função ``irequest_clear``,
-é realizada nas linhas 26 a 28. Começa-se por carregar em R0 o endereço 0xFF40
-e em seguida a execução da instrução ``ldr r0, [r0]``
+é realizada nas linhas 26 a 28. Começa-se por carregar em R0 o endereço de ativação do sinal nCS_EX0
+e em seguida, a execução da instrução ``ldr r0, [r0]``,
 provoca a ativação simultânea dos sinais nCS_EX0 e nRD.
 O local no código da ISR onde esta operação é realizada é indiferente,
 porque toda a rotina é executada com o processador em estado de não
@@ -93,11 +94,7 @@ aceitação de interrupções -- *flag* I a zero.
 **Logisim:**
    - Cicuito: :download:`sdp16_blink_intr.circ<../logisim/sdp16_blink_intr.circ>`
    - *Screenshot*: :download:`Screenshot_Logisim<../logisim/Screenshot_Logisim.png>`
-   - Compilação:
-
-   .. code-block:: console
-
-      pas blink_intr.s -f logisim -l 2
+   - Compilação: ``pas blink_intr.s -f logisim -l 2``
 
 **Exercício:**
 

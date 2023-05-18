@@ -24,7 +24,7 @@ stack_top:
 
 /*==============================================================================
 */
-	.equ	LED_MASK,	(1 << 0)
+	.equ	LED_MASK,	1 << 0
 	.equ	PERIOD,		50000
 	.equ	HALF_PERIOD, 	PERIOD / 2
 
@@ -90,7 +90,7 @@ outport_write:
 	mov	pc, lr
 
 /*------------------------------------------------------------------------------
-	uint8_t timer_read();
+	uint16_t timer_read();
 */
 	.equ	TIMER_ADDRESS, 0xff40
 

@@ -3,27 +3,28 @@
 	ldr	pc, addressof_isr
 _start:
 	ldr	sp, addressof_stack_end
-	ldr	r0, addressof_main
-	mov	r1, pc
-	add	lr, r1, 4
-	mov	pc, r0
+	mov	r0, pc
+	add	lr, r0, #4
+	ldr	pc, addressof_main
 	b	.
 
 addressof_stack_end:
-	.word	stack_end
+	.word stack_end
 addressof_main:
-	.word	main
+	.word main
 addressof_isr:
-	.word	isr
+	.word isr
 
 	.text
 
-	.data
+	.bss
 
+	.equ	STACK_SIZE, 64
 	.section .stack
-	.equ	STACK_SIZE, 1024
 	.space	STACK_SIZE
 stack_end:
+
+	.equ	IFLAG_MASK,	1 << 4	
 
 /*==============================================================================
 
@@ -48,7 +49,7 @@ void main() {
 }
 */
 
-	.data
+	.bss
 blink_state:
 	.byte	0	; uint8_t blink_state;
 led_state:
@@ -56,24 +57,24 @@ led_state:
 
 	.text
 
-	.equ	BUTTON_MASK,	(1 << 3)
-	.equ	LED_MASK,	(1 << 0)
-
-	.equ	IFLAG_MASK,	(1 << 4)
+	.equ	BUTTON_MASK,	1 << 3
+	.equ	LED_MASK,	1 << 0
 
 main:
 	ldr	r1, addressof_led_state	; outport_write(led_state | LED_MASK);
 	ldrb	r0, [r1]
-	mov	r1, LED_MASK
+	mov	r1, #LED_MASK
 	and	r0, r0, r1
 	bl	outport_write
 
-	mov	r0, IFLAG_MASK		; interrupt_enable();
+	mov	r1, #IFLAG_MASK		; interrupt_enable();
+	mrs	r0, cpsr
+	orr	r0, r0, r1
 	msr	cpsr, r0
 while:					; while (1) {
 while1:
 	bl	inport_read		; while ((inport_read() & BUTTON_MASK) != 0)
-	mov	r1, BUTTON_MASK
+	mov	r1, #BUTTON_MASK
 	and	r0, r0, r1
 	bzc	while1
 	ldr	r1, addressof_blink_state
@@ -82,7 +83,7 @@ while1:
 	strb	r0, [r1]
 while2:
 	bl	inport_read		; while ((inport_read() & BUTTON_MASK) == 0)
-	mov	r1, BUTTON_MASK
+	mov	r1, #BUTTON_MASK
 	and	r0, r0, r1
 	bzs	while2
 	b	while
@@ -109,21 +110,21 @@ isr:
 	ldr	r1, addressof_blink_state	; if (blink_state)
 	ldrb	r0, [r1]
 	ldr	r1, addressof_led_state
-	add	r0, r0, 0
+	add	r0, r0, #0
 	beq	isr_if_else
 	ldrb	r0, [r1]		; led_state = !led_state;
 	mvn	r0, r0
 	b	isr_if_end
 isr_if_else:
-	mov	r0, 0			; led_state = 0;
+	mov	r0, #0			; led_state = 0;
 isr_if_end:
 	strb	r0, [r1]
-	mov	r1, LED_MASK		; outport_write(led_state  & LED_MASK);
+	mov	r1, #LED_MASK		; outport_write(led_state  & LED_MASK);
 	and	r0, r0, r1
 	bl	outport_write
 
-	mov	r0, INTR_CLEAR_ADDRESS & 0xff
-	movt	r0, INTR_CLEAR_ADDRESS >> 8
+	mov	r0, #INTR_CLEAR_ADDRESS & 0xff
+	movt	r0, #INTR_CLEAR_ADDRESS >> 8
 	ldr	r0, [r0]
 
 	pop	r3
@@ -141,16 +142,16 @@ addressof_led_state:
 
 /*------------------------------------------------------------------------------
 */
-	.equ	PORT_ADDRESS, 0xff00
+	.equ	INPORT_ADDRESS, 0xff80
 inport_read:
-	mov	r0, PORT_ADDRESS & 0xff
-	movt	r0, PORT_ADDRESS >> 8
-	ldrb	r0,[r0]
+	mov	r0, #INPORT_ADDRESS & 0xff
+	movt	r0, #INPORT_ADDRESS >> 8
+	ldrb	r0, [r0]
 	mov	pc, lr
 
+	.equ	OUTPORT_ADDRESS, 0xffc0
 outport_write:
-	mov	r1, PORT_ADDRESS & 0xff
-	movt	r1, PORT_ADDRESS >> 8
-	strb	r0,[r1]
+	mov	r1, #OUTPORT_ADDRESS & 0xff
+	movt	r1, #OUTPORT_ADDRESS >> 8
+	strb	r0, [r1]
 	mov	pc, lr
-
